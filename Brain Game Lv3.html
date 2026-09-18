@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Coding Pertamaku - Level 3 Achiever</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F8FD;
+    --card:#FFFFFF;
+    --ink:#232A4B;
+    --ink-soft:#6C7293;
+    --accent:#3E63FF;
+    --accent-dark:#2E4CDB;
+    --accent-2:#FF9F1C;
+    --success:#3FBF7A;
+    --danger:#E85A45;
+    --border:#E4E7F5;
+    --shadow: 0 5px 0 rgba(35,42,75,0.12);
+    --radius:20px;
+    --font-head:'Baloo 2', system-ui, sans-serif;
+    --font-body:'Nunito', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#141728;
+      --card:#1F2340;
+      --ink:#EEF0FF;
+      --ink-soft:#A7ACD4;
+      --border:#343A66;
+      --shadow: 0 5px 0 rgba(0,0,0,0.4);
+    }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);}
+  h1,h2,h3{font-family:var(--font-head);margin:0 0 6px;}
+  p{margin:0 0 10px;line-height:1.45;}
+  button{font-family:var(--font-body);cursor:pointer;}
+  #app{max-width:480px;margin:0 auto;min-height:100vh;padding:0 16px 40px;}
+  .screen{padding-top:8px;}
+
+  .instruction{color:var(--ink-soft);font-weight:700;font-size:14px;margin-bottom:14px;}
+
+  .hero{text-align:center;padding:28px 6px 10px;}
+  .hero-badge{font-size:42px;line-height:1;margin-bottom:6px;}
+  .hero-sub{color:var(--ink-soft);font-weight:700;}
+
+  .field{width:100%;padding:14px 16px;border-radius:14px;border:2px solid var(--border);background:var(--card);color:var(--ink);font-size:16px;font-weight:700;font-family:var(--font-body);}
+  .field:focus{outline:none;border-color:var(--accent);}
+
+  .btn-primary{background:var(--accent);color:#fff;border:none;border-radius:16px;padding:14px 22px;font-weight:800;font-size:16px;box-shadow:0 5px 0 var(--accent-dark);}
+  .btn-primary:active{transform:translateY(3px);box-shadow:0 2px 0 var(--accent-dark);}
+  .btn-secondary{background:var(--card);color:var(--ink);border:2px solid var(--border);border-radius:16px;padding:12px 20px;font-weight:800;font-size:15px;}
+  .btn-danger{background:var(--danger);color:#fff;border:none;border-radius:14px;padding:10px 16px;font-weight:800;}
+  .btn-full{width:100%;}
+  .controls-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+
+  .section-title{font-size:18px;margin-top:22px;}
+
+  .player-list{display:flex;flex-direction:column;gap:10px;}
+  .player-card{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--border);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);cursor:pointer;}
+  .player-avatar{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0;}
+  .player-meta{flex:1;}
+  .player-meta b{display:block;font-size:16px;}
+  .player-meta span{color:var(--ink-soft);font-size:13px;font-weight:700;}
+  .player-remove{background:none;border:none;color:var(--ink-soft);font-size:18px;padding:4px 8px;}
+
+  .newplayer-box{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-top:14px;}
+
+  /* map */
+  .map-header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 6px;}
+  .map-header h2{font-size:20px;margin:0;}
+  .icon-btn{background:var(--card);border:2px solid var(--border);border-radius:12px;width:40px;height:40px;font-size:18px;display:flex;align-items:center;justify-content:center;}
+  .level-grid{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .level-card{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--border);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);}
+  .level-card.locked{opacity:0.5;}
+  .level-icon{width:46px;height:46px;border-radius:14px;background:rgba(62,99,255,0.13);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .level-info{flex:1;}
+  .level-info b{display:block;font-size:15px;}
+  .level-info span{color:var(--ink-soft);font-size:12.5px;font-weight:700;}
+  .level-stars{font-size:14px;letter-spacing:1px;color:var(--accent-2);white-space:nowrap;}
+
+  /* game screen */
+  .game-header{display:flex;align-items:center;gap:10px;padding:14px 0 4px;}
+  .game-header h2{font-size:18px;margin:0;flex:1;}
+  .game-body{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-top:8px;}
+  .msg-flash{background:var(--accent-2);color:#fff;font-weight:800;padding:8px 12px;border-radius:12px;margin-bottom:10px;text-align:center;font-size:14px;}
+
+  /* legend / palette / slots */
+  .legend-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:16px;padding-bottom:14px;border-bottom:2px dashed var(--border);}
+  .legend-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:800;font-size:13px;color:var(--ink-soft);}
+  .swatch{width:34px;height:34px;border-radius:50%;border:2px solid rgba(0,0,0,0.12);}
+  .swatch.square{border-radius:8px;}
+
+  .slot-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0;}
+  .slot-cell{width:42px;height:42px;border-radius:50%;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--ink-soft);background:var(--bg);position:relative;}
+  .slot-cell.square{border-radius:10px;}
+  .slot-cell.given{border-style:solid;color:#fff;}
+  .slot-cell.editable{cursor:pointer;}
+  .slot-cell.editable.active{border-color:var(--accent);border-width:3px;}
+  .slot-cell.filled{border-style:solid;color:#fff;}
+
+  .palette-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px;}
+  .palette-btn{width:40px;height:40px;border-radius:50%;border:2px solid rgba(0,0,0,0.15);padding:0;}
+  .palette-btn.letter{width:auto;height:40px;min-width:40px;padding:0 10px;border-radius:10px;color:#fff;font-weight:800;font-size:15px;}
+
+  .mc-options{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0 16px;}
+  .mc-btn{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:10px 16px;font-weight:800;font-size:15px;color:var(--ink);display:flex;align-items:center;justify-content:center;}
+  .mc-btn.selected{border-color:var(--accent);background:rgba(62,99,255,0.13);}
+
+  .qgroup{margin-bottom:18px;padding-bottom:14px;border-bottom:2px dashed var(--border);}
+  .qgroup:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .qprompt{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;font-weight:800;font-size:16px;}
+
+  .icon-strip{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;font-size:26px;background:var(--bg);border-radius:14px;padding:10px;margin-bottom:14px;}
+
+  .quadrant{width:60px;height:60px;border-radius:50%;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border:2px solid rgba(0,0,0,0.12);}
+  .quadrant div{width:100%;height:100%;}
+
+  .numline{width:100%;max-width:320px;margin:0 auto 14px;display:block;}
+
+  .tap-grid{display:grid;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px);gap:8px;justify-content:center;margin:14px auto;}
+  .tap-dot{width:50px;height:50px;border-radius:50%;border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;background:var(--bg);color:var(--ink);}
+  .key-grid{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:5px;justify-content:center;margin:0 auto 16px;}
+  .key-cell{border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;}
+
+  /* result overlay */
+  .overlay{position:fixed;inset:0;background:rgba(20,20,35,0.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;}
+  .result-card{background:var(--card);border-radius:24px;padding:28px 22px;max-width:340px;width:100%;text-align:center;box-shadow:0 10px 0 rgba(0,0,0,0.15);}
+  .result-emoji{font-size:56px;margin-bottom:6px;}
+
+  .footer-note{text-align:center;color:var(--ink-soft);font-size:12px;font-weight:700;margin-top:26px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+  "use strict";
+  var STORAGE_KEY = 'codingPertamakuL3_v1';
+  var MAX_PROFILES = 4;
+
+  /* ============ dom helper ============ */
+  function el(tag, attrs){
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){
+      if(k === 'class'){ node.className = attrs[k]; }
+      else if(k === 'style'){ Object.assign(node.style, attrs[k]); }
+      else if(k.indexOf('on') === 0){ node.addEventListener(k.slice(2), attrs[k]); }
+      else { node.setAttribute(k, attrs[k]); }
+    });
+    for(var i=2;i<arguments.length;i++){
+      var child = arguments[i];
+      if(child === null || child === undefined) continue;
+      if(typeof child === 'string' || typeof child === 'number'){ node.appendChild(document.createTextNode(child)); }
+      else { node.appendChild(child); }
+    }
+    return node;
+  }
+
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function pick(arr){ return arr[randInt(0,arr.length-1)]; }
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){ var j = randInt(0,i); var t=a[i]; a[i]=a[j]; a[j]=t; }
+    return a;
+  }
+  function sampleN(arr, n){ return shuffle(arr).slice(0, n); }
+  function uniqueCombos(count, len, pool){
+    var seen = {}; var out = [];
+    var guard = 0;
+    while(out.length < count && guard < 2000){
+      guard++;
+      var combo = [];
+      for(var i=0;i<len;i++) combo.push(pick(pool));
+      var key = combo.join('|');
+      if(seen[key]) continue;
+      seen[key] = true;
+      out.push(combo);
+    }
+    return out;
+  }
+
+  /* ============ storage ============ */
+  function loadDB(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return { last:null, players:{} };
+  }
+  function saveDB(db){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }catch(e){}
+  }
+  function ensurePlayer(db, name){
+    if(!db.players[name]){
+      db.players[name] = { unlocked:1, levels:{} };
+    }
+    return db.players[name];
+  }
+
+  /* ============ shared palettes ============ */
+  var COLORS9 = [
+    {n:1, name:'Merah', hex:'#F5453D'},
+    {n:2, name:'Ungu', hex:'#8B5CF6'},
+    {n:3, name:'Kuning', hex:'#FFD54A'},
+    {n:4, name:'Hijau', hex:'#6FCF64'},
+    {n:5, name:'Cyan', hex:'#2FC6D8'},
+    {n:6, name:'Abu-abu', hex:'#B9BCC9'},
+    {n:7, name:'Oranye', hex:'#FF9F3E'},
+    {n:8, name:'Pink', hex:'#FF6FB0'},
+    {n:9, name:'Biru', hex:'#3E8EF7'}
+  ];
+  var PALETTE12 = ['#F5453D','#8B5CF6','#FFD54A','#6FCF64','#2FC6D8','#FF9F3E','#FF6FB0','#3E8EF7','#C77DFF','#00BFA5','#8D6E63','#EC407A'];
+  function colorByN(n){ return COLORS9.filter(function(c){return c.n===n;})[0]; }
+
+  function renderLegend(container, items){
+    var row = el('div',{class:'legend-row'});
+    items.forEach(function(it){
+      var sw = el('div',{class:'swatch'+(it.square?' square':''), style:{background:it.hex}});
+      row.appendChild(el('div',{class:'legend-item'}, sw, it.label));
+    });
+    container.appendChild(row);
+  }
+
+  function flashMsg(container, text){
+    var m = el('div',{class:'msg-flash'}, text);
+    container.insertBefore(m, container.firstChild);
+    setTimeout(function(){ m.remove(); }, 1600);
+  }
+
+  /* ============ generic: color slot fill ============ */
+  function buildColorSlotFill(container, opts){
+    var slotEls = [];
+    var answers = {};
+    var selectedIdx = null;
+
+    var row = el('div',{class:'slot-row'});
+    opts.slots.forEach(function(slot, idx){
+      var shapeClass = slot.shape === 'square' ? ' square' : '';
+      var cell;
+      if(slot.given){
+        cell = el('div',{class:'slot-cell given'+shapeClass, style:{background:slot.hex, borderColor:slot.hex}});
+      } else {
+        cell = el('div',{class:'slot-cell editable'+shapeClass, onclick:function(){
+          selectedIdx = idx;
+          slotEls.forEach(function(c,i){ c.classList.toggle('active', i===idx); });
+        }});
+      }
+      if(slot.label){
+        var lab = el('span',{style:{position:'relative', zIndex:2, textShadow:'0 1px 2px rgba(0,0,0,0.35)'}}, slot.label);
+        cell.appendChild(lab);
+      }
+      slotEls.push(cell);
+      row.appendChild(cell);
+    });
+    container.appendChild(row);
+
+    var pal = el('div',{class:'palette-row'});
+    opts.palette.forEach(function(p){
+      var btn = el('button',{class:'palette-btn', style:{background:p.hex}, onclick:function(){
+        if(selectedIdx === null) return;
+        answers[selectedIdx] = p.hex;
+        var cell = slotEls[selectedIdx];
+        cell.style.background = p.hex;
+        cell.style.borderColor = p.hex;
+        cell.classList.add('filled');
+      }});
+      if(p.label) btn.textContent = p.label;
+      pal.appendChild(btn);
+    });
+    container.appendChild(pal);
+
+    return {
+      check: function(){
+        return opts.slots.every(function(slot, idx){
+          if(slot.given) return true;
+          return answers[idx] === slot.correct;
+        });
+      }
+    };
+  }
+
+  /* ============ generic: decode colors into typed symbols ============ */
+  function buildSymbolDecode(container, quesColors, keyPairs){
+    var correctSymbols = quesColors.map(function(hex){
+      var kp = keyPairs.filter(function(k){ return k.hex === hex; })[0];
+      return kp ? kp.symbol : null;
+    });
+    renderLegend(container, keyPairs.map(function(k){ return {hex:k.hex, label:k.symbol}; }));
+
+    var qRow = el('div',{class:'slot-row'});
+    quesColors.forEach(function(hex){ qRow.appendChild(el('div',{class:'slot-cell given', style:{background:hex, borderColor:hex}})); });
+    container.appendChild(qRow);
+
+    var answerEls = [], answers = [], selectedIdx = null;
+    var ansRow = el('div',{class:'slot-row'});
+    quesColors.forEach(function(_, idx){
+      var cell = el('div',{class:'slot-cell editable', onclick:function(){
+        selectedIdx = idx;
+        answerEls.forEach(function(c,i){ c.classList.toggle('active', i===idx); });
+      }});
+      answerEls.push(cell);
+      ansRow.appendChild(cell);
+    });
+    container.appendChild(ansRow);
+
+    var pal = el('div',{class:'palette-row'});
+    keyPairs.forEach(function(k){
+      var btn = el('button',{class:'palette-btn letter', style:{background:k.hex}, onclick:function(){
+        if(selectedIdx === null) return;
+        answers[selectedIdx] = k.symbol;
+        var c = answerEls[selectedIdx];
+        c.textContent = k.symbol;
+        c.style.background = k.hex;
+        c.style.borderColor = k.hex;
+        c.style.color = '#fff';
+        c.classList.add('filled');
+      }}, k.symbol);
+      pal.appendChild(btn);
+    });
+    container.appendChild(pal);
+
+    return { check: function(){
+      return quesColors.every(function(hex, idx){ return answers[idx] === correctSymbols[idx]; });
+    }};
+  }
+
+  /* ============ generic: multiple choice ============ */
+  function buildMultipleChoice(container, optionSpecs, correctIndex){
+    var chosen = -1;
+    var buttons = [];
+    var wrap = el('div',{class:'mc-options'});
+    optionSpecs.forEach(function(spec, idx){
+      var btn = el('button',{class:'mc-btn', onclick:function(){
+        chosen = idx;
+        buttons.forEach(function(b,i){ b.classList.toggle('selected', i===idx); });
+      }}, spec.node);
+      buttons.push(btn);
+      wrap.appendChild(btn);
+    });
+    container.appendChild(wrap);
+    return { check: function(){ return chosen === correctIndex; } };
+  }
+
+  function combineCheckers(list){
+    return { check: function(){ return list.every(function(c){ return c.check(); }); } };
+  }
+
+  /* ============ generic: decode composite icons via multiple-choice ============ */
+  function buildComboDecode(container, keyList, quesList, renderNode){
+    var keyMap = {};
+    keyList.forEach(function(k){ keyMap[k.id] = k.symbol; });
+    var legend = el('div',{class:'legend-row'});
+    keyList.forEach(function(k){
+      legend.appendChild(el('div',{class:'legend-item'}, renderNode(k.id), k.symbol));
+    });
+    container.appendChild(legend);
+
+    var checkers = [];
+    quesList.forEach(function(id){
+      var group = el('div',{class:'qgroup'});
+      group.appendChild(el('div',{class:'qprompt'}, renderNode(id)));
+      var correctSymbol = keyMap[id];
+      var allSymbols = keyList.map(function(k){ return k.symbol; });
+      var wrongPool = allSymbols.filter(function(s){ return s !== correctSymbol; });
+      var choices = sampleN(wrongPool, Math.min(3, wrongPool.length));
+      choices.push(correctSymbol);
+      choices = shuffle(choices);
+      var correctIdx = choices.indexOf(correctSymbol);
+      var optionSpecs = choices.map(function(s){ return { node: document.createTextNode(s) }; });
+      var checker = buildMultipleChoice(group, optionSpecs, correctIdx);
+      checkers.push(checker);
+      container.appendChild(group);
+    });
+    return combineCheckers(checkers);
+  }
+
+  /* ============ icon renderers ============ */
+  function quadrantNode(colors){
+    return el('div',{class:'quadrant'},
+      el('div',{style:{background:colors[0]}}), el('div',{style:{background:colors[1]}}),
+      el('div',{style:{background:colors[2]}}), el('div',{style:{background:colors[3]}})
+    );
+  }
+
+  function triangleNode(colors){
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns,'svg');
+    svg.setAttribute('viewBox','0 0 60 54');
+    svg.setAttribute('width','60'); svg.setAttribute('height','54');
+    var outline = document.createElementNS(ns,'path');
+    outline.setAttribute('d','M30 6 L54 48 L6 48 Z');
+    outline.setAttribute('fill','none'); outline.setAttribute('stroke','currentColor'); outline.setAttribute('stroke-width','2');
+    svg.appendChild(outline);
+    var positions = [[30,12],[13,44],[47,44]];
+    colors.forEach(function(c, i){
+      var circle = document.createElementNS(ns,'circle');
+      circle.setAttribute('cx', positions[i][0]); circle.setAttribute('cy', positions[i][1]); circle.setAttribute('r','8');
+      circle.setAttribute('fill', c); circle.setAttribute('stroke','rgba(0,0,0,0.25)'); circle.setAttribute('stroke-width','1.5');
+      svg.appendChild(circle);
+    });
+    return svg;
+  }
+
+  function concentricNode(d, c, s){
+    var wrap = el('div',{style:{position:'relative', width:'60px', height:'60px'}});
+    wrap.appendChild(el('div',{style:{position:'absolute', inset:'6px', background:d, transform:'rotate(45deg)', borderRadius:'8px'}}));
+    wrap.appendChild(el('div',{style:{position:'absolute', width:'36px', height:'36px', left:'12px', top:'12px', borderRadius:'50%', background:c}}));
+    wrap.appendChild(el('div',{style:{position:'absolute', inset:'0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px', color:s}}, '\u2605'));
+    return wrap;
+  }
+
+  function boatNode(hull, mast, sail){
+    var wrap = el('div',{style:{width:'60px', height:'60px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-end'}});
+    var sailEl = el('div',{style:{width:'0', height:'0', borderLeft:'16px solid transparent', borderBottom:'22px solid '+sail, marginLeft:'6px'}});
+    var mastEl = el('div',{style:{width:'4px', height:'22px', background:mast, marginTop:'-22px'}});
+    var hullEl = el('div',{style:{width:'52px', height:'20px', background:hull, marginTop:'2px', clipPath:'polygon(18% 0,82% 0,100% 100%,0% 100%)'}});
+    wrap.appendChild(sailEl); wrap.appendChild(mastEl); wrap.appendChild(hullEl);
+    return wrap;
+  }
+
+  var SHAPE_TYPES = [
+    { id:'circle', render:function(c){ return el('div',{style:{width:'40px', height:'40px', borderRadius:'50%', background:c}}); } },
+    { id:'square', render:function(c){ return el('div',{style:{width:'40px', height:'40px', borderRadius:'8px', background:c}}); } },
+    { id:'triangle', render:function(c){ return el('div',{style:{width:'0', height:'0', borderLeft:'20px solid transparent', borderRight:'20px solid transparent', borderBottom:'34px solid '+c}}); } },
+    { id:'diamond', render:function(c){ return el('div',{style:{width:'30px', height:'30px', background:c, transform:'rotate(45deg)', borderRadius:'4px'}}); } },
+    { id:'trapezoid', render:function(c){ return el('div',{style:{width:'46px', height:'26px', background:c, clipPath:'polygon(22% 0,78% 0,100% 100%,0% 100%)'}}); } },
+    { id:'star', render:function(c){ return el('div',{style:{fontSize:'36px', color:c, lineHeight:'40px'}}, '\u2605'); } }
+  ];
+
+  function numberLineSvg(){
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns,'svg');
+    svg.setAttribute('viewBox','0 0 320 46');
+    svg.setAttribute('class','numline');
+    var line = document.createElementNS(ns,'line');
+    line.setAttribute('x1','10'); line.setAttribute('x2','310'); line.setAttribute('y1','20'); line.setAttribute('y2','20');
+    line.setAttribute('stroke','currentColor'); line.setAttribute('stroke-width','2');
+    svg.appendChild(line);
+    for(var i=0;i<=10;i++){
+      var x = 10 + i*30;
+      var tick = document.createElementNS(ns,'line');
+      tick.setAttribute('x1',x); tick.setAttribute('x2',x); tick.setAttribute('y1','14'); tick.setAttribute('y2','26');
+      tick.setAttribute('stroke','currentColor'); tick.setAttribute('stroke-width','2');
+      svg.appendChild(tick);
+      var txt = document.createElementNS(ns,'text');
+      txt.setAttribute('x',x); txt.setAttribute('y','42'); txt.setAttribute('text-anchor','middle');
+      txt.setAttribute('font-size','11'); txt.setAttribute('fill','currentColor');
+      txt.textContent = i;
+      svg.appendChild(txt);
+    }
+    return svg;
+  }
+
+  /* ============ level builders ============ */
+
+  // 1. Membuat Pola: 3x3 numbered color key, tap the dots in the order given by a colored number sequence
+  function genMembuatPola(container){
+    container.appendChild(el('p',{class:'instruction'}, 'Ini kuncinya:'));
+    var keyGrid = el('div',{class:'key-grid'});
+    for(var n=1;n<=9;n++){
+      var c = colorByN(n);
+      keyGrid.appendChild(el('div',{class:'key-cell', style:{background:c.hex}}, String(n)));
+    }
+    container.appendChild(keyGrid);
+
+    var len = randInt(5,6);
+    var seq = [];
+    var last = 0;
+    for(var i=0;i<len;i++){
+      var v;
+      do{ v = randInt(1,9); }while(v === last);
+      last = v;
+      seq.push(v);
+    }
+    container.appendChild(el('p',{class:'instruction'}, 'Lihat urutan kode warna berikut:'));
+    var seqRow = el('div',{class:'slot-row'});
+    seq.forEach(function(v){
+      var c = colorByN(v);
+      seqRow.appendChild(el('div',{class:'slot-cell given', style:{background:c.hex, borderColor:c.hex}}, String(v)));
+    });
+    container.appendChild(seqRow);
+    container.appendChild(el('p',{class:'instruction'}, 'Sekarang tekan titik-titik ini sesuai urutan nomor di atas!'));
+
+    var tapGrid = el('div',{class:'tap-grid'});
+    var order = [];
+    var dotEls = [];
+    var used = {};
+    for(var m=1;m<=9;m++){
+      (function(m){
+        var dot = el('div',{class:'tap-dot', onclick:function(){
+          if(used[m]) return;
+          used[m] = true;
+          order.push(m);
+          var c = colorByN(m);
+          dot.style.background = c.hex;
+          dot.style.borderColor = c.hex;
+          dot.style.color = '#fff';
+          dot.textContent = order.length;
+        }});
+        dotEls.push(dot);
+        tapGrid.appendChild(dot);
+      })(m);
+    }
+    container.appendChild(tapGrid);
+    container.appendChild(el('button',{class:'btn-secondary', onclick:function(){
+      order.length = 0;
+      Object.keys(used).forEach(function(k){ delete used[k]; });
+      dotEls.forEach(function(d){ d.style.background='var(--bg)'; d.style.borderColor='var(--border)'; d.style.color='var(--ink)'; d.textContent=''; });
+    }}, 'Ulangi Urutan'));
+
+    return { check: function(){
+      if(order.length !== seq.length) return false;
+      return order.every(function(v, i){ return v === seq[i]; });
+    }};
+  }
+
+  // 2. Coding Warna: numbered slots colored according to a small key (simulating cut-and-paste segments)
+  function genCodingWarna(container){
+    var n = randInt(4,5);
+    var key = COLORS9.slice(0, n);
+    renderLegend(container, key.map(function(c){ return {hex:c.hex, label:c.n}; }));
+    container.appendChild(el('p',{class:'instruction'}, 'Warnai setiap bagian sesuai nomor dan kuncinya!'));
+    var groups = randInt(3,4);
+    var slots = [];
+    for(var g=0; g<groups; g++){
+      var segCount = pick([2,3,4]);
+      for(var s=0;s<segCount;s++){
+        var num = pick(key).n;
+        slots.push({ given:false, correct: colorByN(num).hex, label:String(num) });
+      }
+    }
+    var palette = key.map(function(c){ return {hex:c.hex}; });
+    return buildColorSlotFill(container, { slots:slots, palette:palette });
+  }
+
+  // 3. Mengikuti Pola Warna: continue a repeating color pattern
+  function genMengikutiPola(container){
+    var unitLen = randInt(2,3);
+    var usedColors = sampleN(PALETTE12, unitLen === 2 ? 2 : 3);
+    var unit = [];
+    for(var i=0;i<unitLen;i++) unit.push(usedColors[i % usedColors.length]);
+    if(unitLen === 3 && Math.random() < 0.5) unit[1] = unit[0];
+
+    container.appendChild(el('p',{class:'instruction'}, 'Lanjutkan pola warna berikut ini!'));
+    var givenCount = unit.length * 2;
+    var blankCount = 5;
+    var total = givenCount + blankCount;
+    var slots = [];
+    for(var j=0;j<total;j++){
+      var expected = unit[j % unit.length];
+      if(j < givenCount){ slots.push({ given:true, hex: expected }); }
+      else { slots.push({ given:false, correct: expected }); }
+    }
+    var palette = usedColors.map(function(hex){ return {hex:hex}; });
+    return buildColorSlotFill(container, { slots:slots, palette:palette });
+  }
+
+  // 4. Coding Warna dan Bentuk: find the option with the exact same layered color combo
+  function genWarnaBentukMatch(container){
+    var useBoat = Math.random() < 0.5;
+    var renderFn = useBoat ? boatNode : concentricNode;
+    var pool = sampleN(PALETTE12, 6);
+    container.appendChild(el('p',{class:'instruction'}, 'Cari kombinasi warna yang sama persis!'));
+    var checkers = [];
+    var rounds = 3;
+    for(var r=0;r<rounds;r++){
+      var target = [pick(pool), pick(pool), pick(pool)];
+      var group = el('div',{class:'qgroup'});
+      group.appendChild(el('div',{class:'qprompt'}, renderFn(target[0], target[1], target[2])));
+      var options = [target.slice()];
+      var guard = 0;
+      while(options.length < 4 && guard < 200){
+        guard++;
+        var variant = target.slice();
+        var changeIdx = randInt(0,2);
+        var altPool = pool.filter(function(c){ return c !== variant[changeIdx]; });
+        variant[changeIdx] = pick(altPool);
+        var dup = options.some(function(o){ return o[0]===variant[0] && o[1]===variant[1] && o[2]===variant[2]; });
+        if(!dup) options.push(variant);
+      }
+      options = shuffle(options);
+      var correctIdx = -1;
+      options.forEach(function(o, idx){
+        if(o[0]===target[0] && o[1]===target[1] && o[2]===target[2]) correctIdx = idx;
+      });
+      var optionSpecs = options.map(function(o){ return { node: renderFn(o[0], o[1], o[2]) }; });
+      var checker = buildMultipleChoice(group, optionSpecs, correctIdx);
+      checkers.push(checker);
+      container.appendChild(group);
+    }
+    return combineCheckers(checkers);
+  }
+
+  // 5. Decoding Warna - Angka
+  function genDecodingAngka(container){
+    var n = randInt(4,5);
+    var key = COLORS9.slice(0, n);
+    var keyPairs = key.map(function(c){ return {hex:c.hex, symbol:String(c.n)}; });
+    var len = randInt(4,5);
+    var quesColors = [];
+    for(var i=0;i<len;i++) quesColors.push(pick(key).hex);
+    container.appendChild(el('p',{class:'instruction'}, 'Isi kotak kosong sesuai warna dan kuncinya!'));
+    return buildSymbolDecode(container, quesColors, keyPairs);
+  }
+
+  // 6. Decoding Warna - Alfabet
+  var ALPHA_SETS = ['ABCDEFGHI','JKLMNOPQR','STUVWXYZ'];
+  function genDecodingAlfabetWarna(container){
+    var letters = pick(ALPHA_SETS).split('');
+    var colors = sampleN(PALETTE12, letters.length);
+    var keyPairs = letters.map(function(l, i){ return {hex:colors[i], symbol:l}; });
+    var len = randInt(4,6);
+    var quesColors = [];
+    for(var i=0;i<len;i++) quesColors.push(pick(keyPairs).hex);
+    container.appendChild(el('p',{class:'instruction'}, 'Isi kotak kosong sesuai warna dan huruf kuncinya!'));
+    return buildSymbolDecode(container, quesColors, keyPairs);
+  }
+
+  // 7. Decoding Gambar: triangle 3-dot combos decode to number or symbol
+  function genDecodingGambar(container){
+    var mode = pick(['angka0','angka5','simbol']);
+    var symbols;
+    if(mode === 'angka0') symbols = ['0','1','2','3','4'];
+    else if(mode === 'angka5') symbols = ['5','6','7','8','9'];
+    else symbols = ['+','\u00D7','\u2212','\u25CB','\u25B3'];
+    var pool = sampleN(PALETTE12, 4);
+    var combos = uniqueCombos(symbols.length, 3, pool);
+    var keyList = symbols.map(function(s, i){ return { id: combos[i].join('|'), colors: combos[i], symbol: s }; });
+    var idToColors = {};
+    keyList.forEach(function(k){ idToColors[k.id] = k.colors; });
+    container.appendChild(el('p',{class:'instruction'}, 'Kenali pola segitiga, lalu pilih jawaban yang tepat!'));
+    var quesList = [];
+    for(var i=0;i<4;i++) quesList.push(pick(keyList).id);
+    return buildComboDecode(container, keyList, quesList, function(id){ return triangleNode(idToColors[id]); });
+  }
+
+  // 8. Decoding Bentuk Berwarna: quadrant circle combos decode to a shape
+  function genDecodingBentukWarna(container){
+    var shapes = ['\u25B3','\u25A1','\u25CB','\u25C7'];
+    var pool = sampleN(PALETTE12, 4);
+    var combos = uniqueCombos(shapes.length, 4, pool);
+    var keyList = shapes.map(function(s, i){ return { id: combos[i].join('|'), colors: combos[i], symbol: s }; });
+    var idToColors = {};
+    keyList.forEach(function(k){ idToColors[k.id] = k.colors; });
+    container.appendChild(el('p',{class:'instruction'}, 'Kenali pola lingkaran, lalu pilih bentuk yang tepat!'));
+    var quesList = [];
+    for(var i=0;i<4;i++) quesList.push(pick(keyList).id);
+    return buildComboDecode(container, keyList, quesList, function(id){ return quadrantNode(idToColors[id]); });
+  }
+
+  // 9/10. Garis Penjumlahan & Pengurangan
+  function genGarisOp(container, opLabel, opFn, isSub){
+    container.appendChild(el('p',{class:'instruction'}, 'Gunakan garis bilangan untuk menghitung!'));
+    container.appendChild(el('div',{style:{color:'var(--ink-soft)'}}, numberLineSvg()));
+    var a,b;
+    if(isSub){ a = randInt(4,10); b = randInt(1,a); }
+    else { a = randInt(1,6); b = randInt(1, 10-a); }
+    var correct = opFn(a,b);
+    container.appendChild(el('div',{class:'qprompt'}, a + ' ' + opLabel + ' ' + b + ' ='));
+    var choices = new Set([correct]);
+    var guard = 0;
+    while(choices.size < 4 && guard < 200){
+      guard++;
+      var alt = correct + randInt(-3,3);
+      if(alt >= 0 && alt <= 10) choices.add(alt);
+    }
+    var arr = shuffle(Array.from(choices));
+    var idx = arr.indexOf(correct);
+    var options = arr.map(function(v){ return { node: document.createTextNode(String(v)) }; });
+    return buildMultipleChoice(container, options, idx);
+  }
+  function genGarisTambah(container){ return genGarisOp(container, '+', function(a,b){ return a+b; }, false); }
+  function genGarisKurang(container){ return genGarisOp(container, '-', function(a,b){ return a-b; }, true); }
+
+  // 11. Coding Emoji: find the coordinate of the shown emoji on the grid
+  function genCodingEmoji(container){
+    var cols = ['A','B','C','D','E','F','G','H','I'];
+    var rows = [1,2,3,4,5,6,7,8,9];
+    var emojiPool = ['\uD83D\uDE03','\uD83E\uDD2B','\uD83D\uDE07','\uD83D\uDE21','\uD83D\uDE0D','\uD83D\uDE0A','\uD83E\uDD22','\uD83E\uDD13','\uD83E\uDD73','\uD83D\uDE2D','\uD83E\uDD13','\uD83E\uDD11'];
+    var count = randInt(4,5);
+    var chosen = sampleN(emojiPool, count);
+    var usedCoords = {};
+    var mapping = [];
+    chosen.forEach(function(e){
+      var coord, guard = 0;
+      do{ coord = pick(cols) + pick(rows); guard++; }while(usedCoords[coord] && guard < 100);
+      usedCoords[coord] = true;
+      mapping.push({ emoji:e, coord:coord });
+    });
+    container.appendChild(el('p',{class:'instruction'}, 'Cari posisi tiap emoji ini pada peta koordinat, lalu pilih jawabannya!'));
+    var checkers = [];
+    mapping.forEach(function(m){
+      var group = el('div',{class:'qgroup'});
+      group.appendChild(el('div',{class:'qprompt', style:{fontSize:'34px'}}, m.emoji));
+      var options = {}; options[m.coord] = true;
+      var g2 = 0;
+      while(Object.keys(options).length < 4 && g2 < 200){ g2++; options[pick(cols)+pick(rows)] = true; }
+      var arr = shuffle(Object.keys(options));
+      var correctIdx = arr.indexOf(m.coord);
+      var optionSpecs = arr.map(function(c){ return { node: document.createTextNode(c) }; });
+      var checker = buildMultipleChoice(group, optionSpecs, correctIdx);
+      checkers.push(checker);
+      container.appendChild(group);
+    });
+    return combineCheckers(checkers);
+  }
+
+  // 12. Coding Bentuk & Warna: memorize the key, then match each black silhouette to its color
+  function genBentukWarnaMatch(container){
+    var n = randInt(4,5);
+    var chosenShapes = sampleN(SHAPE_TYPES, n);
+    var colors = sampleN(PALETTE12, n);
+    var mapping = chosenShapes.map(function(t, i){ return { type:t, color:colors[i] }; });
+    container.appendChild(el('p',{class:'instruction'}, 'Ingat warna untuk tiap bentuk pada kunci ini!'));
+    var legend = el('div',{class:'legend-row'});
+    mapping.forEach(function(m){ legend.appendChild(el('div',{class:'legend-item'}, m.type.render(m.color), '')); });
+    container.appendChild(legend);
+    container.appendChild(el('p',{class:'instruction'}, 'Sekarang cocokkan bentuk hitam ini dengan warna yang benar!'));
+
+    var checkers = [];
+    var order = shuffle(mapping);
+    var rounds = Math.min(4, order.length);
+    for(var r=0;r<rounds;r++){
+      var m = order[r];
+      var group = el('div',{class:'qgroup'});
+      group.appendChild(el('div',{class:'qprompt'}, m.type.render('#555B6E')));
+      var colorChoices = shuffle(mapping.map(function(mm){ return mm.color; }));
+      var correctIdx = colorChoices.indexOf(m.color);
+      var optionSpecs = colorChoices.map(function(c){ return { node: el('div',{class:'swatch', style:{background:c}}) }; });
+      var checker = buildMultipleChoice(group, optionSpecs, correctIdx);
+      checkers.push(checker);
+      container.appendChild(group);
+    }
+    return combineCheckers(checkers);
+  }
+
+  var LEVELS = [
+    { title:'Membuat Pola', subtitle:'Tekan titik sesuai urutan kode warna', icon:'\uD83E\uDDE9', build:genMembuatPola },
+    { title:'Coding Warna', subtitle:'Warnai bagian sesuai kunci angka', icon:'\uD83C\uDFA8', build:genCodingWarna },
+    { title:'Mengikuti Pola Warna', subtitle:'Lanjutkan pola yang berulang', icon:'\uD83D\uDD01', build:genMengikutiPola },
+    { title:'Coding Warna dan Bentuk', subtitle:'Cari kombinasi warna yang sama', icon:'\u2B50', build:genWarnaBentukMatch },
+    { title:'Decoding Warna - Angka', subtitle:'Ubah warna jadi angka', icon:'\uD83D\uDD22', build:genDecodingAngka },
+    { title:'Decoding Warna - Alfabet', subtitle:'Ubah warna jadi huruf', icon:'\uD83D\uDD24', build:genDecodingAlfabetWarna },
+    { title:'Decoding Gambar', subtitle:'Kenali pola segitiga', icon:'\uD83D\uDD3A', build:genDecodingGambar },
+    { title:'Decoding Bentuk Berwarna', subtitle:'Kenali pola lingkaran jadi bentuk', icon:'\uD83C\uDFAF', build:genDecodingBentukWarna },
+    { title:'Garis Penjumlahan', subtitle:'Melompat di garis bilangan', icon:'\uD83D\uDCC8', build:genGarisTambah },
+    { title:'Garis Pengurangan', subtitle:'Melompat mundur di garis bilangan', icon:'\uD83D\uDCC9', build:genGarisKurang },
+    { title:'Coding Emoji', subtitle:'Temukan koordinat emoji', icon:'\uD83D\uDE00', build:genCodingEmoji },
+    { title:'Coding Bentuk & Warna', subtitle:'Cocokkan bentuk hitam dengan warnanya', icon:'\uD83D\uDD17', build:genBentukWarnaMatch }
+  ];
+
+  /* ============ screens ============ */
+
+  function renderHome(){
+    var app = document.getElementById('app');
+    app.innerHTML = '';
+    var db = loadDB();
+    var names = Object.keys(db.players);
+    var wrap = el('div',{class:'screen home'});
+    wrap.appendChild(el('div',{class:'hero'},
+      el('div',{class:'hero-badge'},'\uD83E\uDDE0\u2699\uFE0F'),
+      el('h1',{},'Coding Pertamaku'),
+      el('p',{class:'hero-sub'},'Level 3: Achiever \u2014 tantangan berpikir logis untuk usia 5+')
+    ));
+
+    if(names.length){
+      wrap.appendChild(el('h2',{class:'section-title'},'Lanjutkan Bermain'));
+      var list = el('div',{class:'player-list'});
+      names.forEach(function(name){
+        var p = db.players[name];
+        var doneCount = Object.keys(p.levels).filter(function(k){ return p.levels[k].completed; }).length;
+        var card = el('div',{class:'player-card', onclick:function(){ db.last = name; saveDB(db); renderMap(name); }},
+          el('div',{class:'player-avatar'}, name.trim().charAt(0).toUpperCase() || '?'),
+          el('div',{class:'player-meta'},
+            el('b',{}, name),
+            el('span',{}, doneCount + ' / ' + LEVELS.length + ' level selesai')
+          ),
+          el('button',{class:'player-remove', onclick:function(e){
+            e.stopPropagation();
+            delete db.players[name];
+            if(db.last === name) db.last = null;
+            saveDB(db);
+            renderHome();
+          }}, '\u2715')
+        );
+        list.appendChild(card);
+      });
+      wrap.appendChild(list);
+    }
+
+    if(names.length < MAX_PROFILES){
+      var box = el('div',{class:'newplayer-box'});
+      box.appendChild(el('h3',{}, names.length ? 'Pemain Baru' : 'Mulai Bermain'));
+      var input = el('input',{class:'field', type:'text', placeholder:'Tulis namamu...', maxlength:'16'});
+      box.appendChild(input);
+      box.appendChild(el('button',{class:'btn-primary btn-full', style:{marginTop:'10px'}, onclick:function(){
+        var name = (input.value || '').trim();
+        if(!name) return;
+        var db2 = loadDB();
+        if(!db2.players[name] && Object.keys(db2.players).length >= MAX_PROFILES){
+          flashMsg(box, 'Maksimal 4 nama tersimpan di perangkat ini.');
+          return;
+        }
+        ensurePlayer(db2, name);
+        db2.last = name;
+        saveDB(db2);
+        renderMap(name);
+      }}, 'Mulai'));
+      wrap.appendChild(box);
+    } else if(!names.length){
+      wrap.appendChild(el('p',{class:'instruction'}, 'Maksimal 4 nama tersimpan di perangkat ini.'));
+    }
+
+    wrap.appendChild(el('p',{class:'footer-note'}, 'Progres disimpan otomatis di perangkat ini (localStorage).'));
+    app.appendChild(wrap);
+  }
+
+  function renderMap(name){
+    var app = document.getElementById('app');
+    app.innerHTML = '';
+    var db = loadDB();
+    var p = ensurePlayer(db, name);
+    saveDB(db);
+
+    var wrap = el('div',{class:'screen map'});
+    wrap.appendChild(el('div',{class:'map-header'},
+      el('button',{class:'icon-btn', onclick:renderHome}, '\u2190'),
+      el('h2',{}, 'Halo, ' + name + '!'),
+      el('span',{})
+    ));
+
+    var grid = el('div',{class:'level-grid'});
+    LEVELS.forEach(function(lvl, idx){
+      var unlocked = idx < p.unlocked;
+      var lvlState = p.levels[idx];
+      var stars = lvlState ? lvlState.stars || 0 : 0;
+      var starStr = lvlState && lvlState.completed ? Array(3).fill(0).map(function(_,i){ return i < stars ? '\u2b50' : '\u2606'; }).join('') : '';
+      var card = el('div',{class:'level-card'+(unlocked?'':' locked'), onclick: unlocked ? function(){ renderGame(name, idx); } : null},
+        el('div',{class:'level-icon'}, lvl.icon),
+        el('div',{class:'level-info'},
+          el('b',{}, (idx+1) + '. ' + lvl.title),
+          el('span',{}, lvl.subtitle)
+        ),
+        el('div',{class:'level-stars'}, unlocked ? starStr : '\uD83D\uDD12')
+      );
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+    app.appendChild(wrap);
+  }
+
+  function renderGame(name, idx){
+    var app = document.getElementById('app');
+    app.innerHTML = '';
+    var lvl = LEVELS[idx];
+    var wrap = el('div',{class:'screen game'});
+    wrap.appendChild(el('div',{class:'game-header'},
+      el('button',{class:'icon-btn', onclick:function(){ renderMap(name); }}, '\u2190'),
+      el('h2',{}, (idx+1) + '. ' + lvl.title)
+    ));
+    var body = el('div',{class:'game-body'});
+    wrap.appendChild(body);
+    var api = lvl.build(body);
+
+    var controls = el('div',{class:'controls-row'});
+    controls.appendChild(el('button',{class:'btn-primary btn-full', onclick:function(){
+      var correct = api.check();
+      showResult(name, idx, correct);
+    }}, 'Cek Jawaban'));
+    controls.appendChild(el('button',{class:'btn-secondary', onclick:function(){ renderGame(name, idx); }}, 'Ulangi'));
+    wrap.appendChild(controls);
+
+    app.appendChild(wrap);
+  }
+
+  function showResult(name, idx, correct){
+    var db = loadDB();
+    var p = ensurePlayer(db, name);
+    var overlay = el('div',{class:'overlay'});
+    var card = el('div',{class:'result-card'});
+    if(correct){
+      var prevStars = (p.levels[idx] && p.levels[idx].stars) || 0;
+      var stars = Math.max(prevStars, 3);
+      p.levels[idx] = { completed:true, stars: stars };
+      if(idx + 1 >= p.unlocked) p.unlocked = Math.min(LEVELS.length, idx + 2);
+      saveDB(db);
+
+      card.appendChild(el('div',{class:'result-emoji'}, '\uD83C\uDF89'));
+      card.appendChild(el('h2',{}, 'Level Selesai!'));
+      card.appendChild(el('p',{}, idx+1 < LEVELS.length ? 'Ayo lanjut ke level berikutnya.' : 'Kamu menyelesaikan semua level, hebat!'));
+      var row = el('div',{class:'controls-row'});
+      if(idx+1 < LEVELS.length){
+        row.appendChild(el('button',{class:'btn-primary', onclick:function(){ overlay.remove(); renderGame(name, idx+1); }},'Level Berikutnya'));
+      }
+      row.appendChild(el('button',{class:'btn-secondary', onclick:function(){ overlay.remove(); renderMap(name); }},'Peta Level'));
+      card.appendChild(row);
+    } else {
+      card.appendChild(el('div',{class:'result-emoji'},'\uD83E\uDD14'));
+      card.appendChild(el('h2',{},'Belum Tepat'));
+      card.appendChild(el('p',{},'Coba lagi, kamu pasti bisa!'));
+      var row2 = el('div',{class:'controls-row'});
+      row2.appendChild(el('button',{class:'btn-primary', onclick:function(){ overlay.remove(); renderGame(name, idx); }},'Coba Lagi'));
+      row2.appendChild(el('button',{class:'btn-secondary', onclick:function(){ overlay.remove(); renderMap(name); }},'Peta Level'));
+      card.appendChild(row2);
+    }
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+  }
+
+  /* ============ boot ============ */
+  var db0 = loadDB();
+  if(db0.last && db0.players[db0.last]) renderMap(db0.last);
+  else renderHome();
+
+})();
+</script>
+</body>
+</html>
