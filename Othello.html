@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Othello Warna Bebas</title>
+<style>
+  :root{
+    --bg:#f2f1ec;
+    --text:#1a1a1a;
+    --text-dim:#5b5b55;
+    --panel-bg:#ffffff;
+    --panel-border:rgba(0,0,0,.10);
+    --panel-shadow:0 8px 24px rgba(0,0,0,.08);
+    --board-bg:#1f7a4d;
+    --board-bg2:#1a6b42;
+    --board-line:rgba(0,0,0,.28);
+    --hint-dot:rgba(255,255,255,.55);
+    --btn-bg:#1a1a1a;
+    --btn-text:#ffffff;
+    --btn-bg-soft:rgba(0,0,0,.06);
+    --input-border:rgba(0,0,0,.18);
+    --danger:#c0392b;
+    --warn:#b8860b;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15161a;
+      --text:#f0f0ee;
+      --text-dim:#a3a3ab;
+      --panel-bg:#1f2127;
+      --panel-border:rgba(255,255,255,.10);
+      --panel-shadow:0 8px 24px rgba(0,0,0,.35);
+      --board-bg:#155c3a;
+      --board-bg2:#124f31;
+      --board-line:rgba(0,0,0,.4);
+      --hint-dot:rgba(255,255,255,.5);
+      --btn-bg:#f0f0ee;
+      --btn-text:#15161a;
+      --btn-bg-soft:rgba(255,255,255,.08);
+      --input-border:rgba(255,255,255,.22);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15161a;
+    --text:#f0f0ee;
+    --text-dim:#a3a3ab;
+    --panel-bg:#1f2127;
+    --panel-border:rgba(255,255,255,.10);
+    --panel-shadow:0 8px 24px rgba(0,0,0,.35);
+    --board-bg:#155c3a;
+    --board-bg2:#124f31;
+    --board-line:rgba(0,0,0,.4);
+    --hint-dot:rgba(255,255,255,.5);
+    --btn-bg:#f0f0ee;
+    --btn-text:#15161a;
+    --btn-bg-soft:rgba(255,255,255,.08);
+    --input-border:rgba(255,255,255,.22);
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:18px 12px 32px;
+  }
+  .app{ width:100%; max-width:520px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+
+  h1{ font-size:1.3rem; margin:4px 0 0; text-align:center; }
+  .subtitle{ color:var(--text-dim); font-size:.85rem; text-align:center; margin:0 0 4px; }
+
+  /* ---------- Setup screen ---------- */
+  .panel{
+    background:var(--panel-bg);
+    border:1px solid var(--panel-border);
+    box-shadow:var(--panel-shadow);
+    border-radius:16px;
+    padding:18px;
+    width:100%;
+  }
+  .player-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 4px;
+    border-bottom:1px solid var(--panel-border);
+  }
+  .player-row:last-of-type{ border-bottom:none; }
+  .player-row label{ font-weight:600; width:74px; flex-shrink:0; font-size:.92rem; }
+  .color-input-wrap{ position:relative; width:44px; height:44px; flex-shrink:0; }
+  .color-input-wrap input[type=color]{
+    width:100%; height:100%; border:none; padding:0; background:none; cursor:pointer; border-radius:50%;
+    overflow:hidden;
+  }
+  .color-input-wrap input[type=color]::-webkit-color-swatch-wrapper{ padding:0; border-radius:50%; }
+  .color-input-wrap input[type=color]::-webkit-color-swatch{ border:none; border-radius:50%; }
+  .color-input-wrap input[type=color]::-moz-color-swatch{ border:none; border-radius:50%; }
+  .name-input{
+    flex:1; min-width:0;
+    border:1px solid var(--input-border);
+    background:transparent;
+    color:var(--text);
+    border-radius:9px;
+    padding:9px 10px;
+    font-size:.92rem;
+  }
+  .swap-row{ display:flex; justify-content:center; margin:6px 0 2px; }
+  .swap-btn{
+    background:var(--btn-bg-soft); border:none; color:var(--text);
+    border-radius:20px; padding:7px 16px; font-size:.82rem; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+  }
+  .warning-box{
+    font-size:.82rem; border-radius:10px; padding:8px 10px; margin-top:8px;
+    display:none; line-height:1.4;
+  }
+  .warning-box.show{ display:block; }
+  .warning-box.warn{ background:rgba(184,134,11,.12); color:var(--warn); }
+  .warning-box.danger{ background:rgba(192,57,43,.12); color:var(--danger); }
+
+  .start-btn, .primary-btn{
+    width:100%;
+    background:var(--btn-bg); color:var(--btn-text);
+    border:none; border-radius:12px; padding:13px; font-size:1rem; font-weight:700;
+    margin-top:14px; cursor:pointer;
+  }
+  .start-btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .secondary-btn{
+    width:100%; background:transparent; color:var(--text);
+    border:1px solid var(--input-border); border-radius:12px; padding:11px; font-size:.92rem;
+    margin-top:8px; cursor:pointer; font-weight:600;
+  }
+
+  /* ---------- Game screen ---------- */
+  .hidden{ display:none !important; }
+
+  .scorebar{
+    display:flex; gap:10px; width:100%;
+  }
+  .score-chip{
+    flex:1; background:var(--panel-bg); border:2px solid transparent;
+    border-radius:14px; padding:10px 12px; display:flex; align-items:center; gap:10px;
+    box-shadow:var(--panel-shadow); transition:border-color .2s, transform .2s;
+  }
+  .score-chip.active{ transform:translateY(-2px); }
+  .chip-swatch{
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  }
+  .chip-info{ min-width:0; }
+  .chip-name{ font-size:.78rem; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .chip-score{ font-size:1.15rem; font-weight:800; line-height:1.1; }
+  .chip-turn-dot{ margin-left:auto; font-size:.7rem; font-weight:700; opacity:0; }
+  .score-chip.active .chip-turn-dot{ opacity:1; }
+
+  .status-line{
+    font-size:.86rem; color:var(--text-dim); text-align:center; min-height:1.3em;
+  }
+
+  .board-wrap{
+    width:100%;
+    max-width:420px;
+    aspect-ratio:1/1;
+    background:linear-gradient(160deg,var(--board-bg),var(--board-bg2));
+    border-radius:12px;
+    padding:2.2%;
+    box-shadow:var(--panel-shadow);
+    display:grid;
+    grid-template-columns:repeat(8,1fr);
+    grid-template-rows:repeat(8,1fr);
+    gap:0;
+  }
+  .cell{
+    position:relative;
+    border:1px solid var(--board-line);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cell.valid{ cursor:pointer; }
+  .hint-dot{
+    width:22%; height:22%; border-radius:50%; background:var(--hint-dot);
+  }
+  .disc{
+    width:84%; height:84%; border-radius:50%;
+    box-shadow:
+      0 0 0 2.5px rgba(0,0,0,.4),
+      inset 0 -3px 5px rgba(0,0,0,.25),
+      inset 0 2px 3px rgba(255,255,255,.35);
+    animation:pop .18s ease-out;
+  }
+  @keyframes pop{ from{ transform:scale(.4); opacity:0; } to{ transform:scale(1); opacity:1; } }
+
+  .game-controls{ display:flex; gap:8px; width:100%; }
+  .game-controls button{ flex:1; }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.55);
+    display:flex; align-items:center; justify-content:center; padding:20px; z-index:20;
+  }
+  .overlay-card{
+    background:var(--panel-bg); border-radius:18px; padding:26px 22px; text-align:center;
+    max-width:340px; width:100%; box-shadow:var(--panel-shadow);
+  }
+  .overlay-card h2{ margin:2px 0 6px; font-size:1.25rem; }
+  .overlay-card .winner-swatch{ width:40px; height:40px; border-radius:50%; margin:0 auto 10px;
+    box-shadow:0 0 0 2.5px rgba(0,0,0,.4), inset 0 -3px 5px rgba(0,0,0,.25), inset 0 2px 3px rgba(255,255,255,.35); }
+  .overlay-card p{ color:var(--text-dim); margin:2px 0 18px; font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>🟢 Othello Warna Bebas</h1>
+  <p class="subtitle">Reversi klasik, tapi kalian pilih sendiri warna pionnya</p>
+
+  <!-- SETUP SCREEN -->
+  <div class="panel" id="setupScreen">
+    <div class="player-row">
+      <label>Pemain 1</label>
+      <div class="color-input-wrap"><input type="color" id="colorP1" value="#e63946"></div>
+      <input type="text" class="name-input" id="nameP1" placeholder="Nama Pemain 1" maxlength="14">
+    </div>
+    <div class="player-row">
+      <label>Pemain 2</label>
+      <div class="color-input-wrap"><input type="color" id="colorP2" value="#f4f1de"></div>
+      <input type="text" class="name-input" id="nameP2" placeholder="Nama Pemain 2" maxlength="14">
+    </div>
+    <div class="swap-row">
+      <button class="swap-btn" id="swapBtn">⇄ Tukar warna</button>
+    </div>
+    <div class="warning-box" id="colorWarning"></div>
+    <button class="start-btn" id="startBtn">Mulai Main</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:12px;">
+    <div class="scorebar">
+      <div class="score-chip" id="chip1">
+        <div class="chip-swatch" id="swatch1"></div>
+        <div class="chip-info">
+          <div class="chip-name" id="chipName1">Pemain 1</div>
+          <div class="chip-score" id="chipScore1">2</div>
+        </div>
+        <div class="chip-turn-dot">●</div>
+      </div>
+      <div class="score-chip" id="chip2">
+        <div class="chip-swatch" id="swatch2"></div>
+        <div class="chip-info">
+          <div class="chip-name" id="chipName2">Pemain 2</div>
+          <div class="chip-score" id="chipScore2">2</div>
+        </div>
+        <div class="chip-turn-dot">●</div>
+      </div>
+    </div>
+
+    <div class="status-line" id="statusLine">Giliran Pemain 1</div>
+
+    <div class="board-wrap" id="board"></div>
+
+    <div class="game-controls">
+      <button class="secondary-btn" id="restartBtn">Main Lagi</button>
+      <button class="secondary-btn" id="backBtn">Ganti Warna</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="overlay">
+  <div class="overlay-card">
+    <div class="winner-swatch" id="winnerSwatch"></div>
+    <h2 id="winnerTitle">Selesai!</h2>
+    <p id="winnerDesc">Skor akhir</p>
+    <button class="start-btn" id="overlayRestartBtn" style="margin-top:0;">Main Lagi</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var DIRS = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+  var EMPTY = 0, P1 = 1, P2 = 2;
+
+  var state = {
+    board: [],
+    current: P1,
+    players: {
+      1: { color:'#e63946', name:'Pemain 1' },
+      2: { color:'#f4f1de', name:'Pemain 2' }
+    },
+    over: false
+  };
+
+  var els = {
+    setupScreen: document.getElementById('setupScreen'),
+    gameScreen: document.getElementById('gameScreen'),
+    colorP1: document.getElementById('colorP1'),
+    colorP2: document.getElementById('colorP2'),
+    nameP1: document.getElementById('nameP1'),
+    nameP2: document.getElementById('nameP2'),
+    swapBtn: document.getElementById('swapBtn'),
+    colorWarning: document.getElementById('colorWarning'),
+    startBtn: document.getElementById('startBtn'),
+    board: document.getElementById('board'),
+    statusLine: document.getElementById('statusLine'),
+    chip1: document.getElementById('chip1'),
+    chip2: document.getElementById('chip2'),
+    swatch1: document.getElementById('swatch1'),
+    swatch2: document.getElementById('swatch2'),
+    chipName1: document.getElementById('chipName1'),
+    chipName2: document.getElementById('chipName2'),
+    chipScore1: document.getElementById('chipScore1'),
+    chipScore2: document.getElementById('chipScore2'),
+    restartBtn: document.getElementById('restartBtn'),
+    backBtn: document.getElementById('backBtn'),
+    overlay: document.getElementById('overlay'),
+    winnerSwatch: document.getElementById('winnerSwatch'),
+    winnerTitle: document.getElementById('winnerTitle'),
+    winnerDesc: document.getElementById('winnerDesc'),
+    overlayRestartBtn: document.getElementById('overlayRestartBtn')
+  };
+
+  // ---------- storage (per-viewer convenience only) ----------
+  function loadSaved(){
+    try{
+      var raw = localStorage.getItem('othello_custom_prefs');
+      if(!raw) return;
+      var data = JSON.parse(raw);
+      if(data.c1) els.colorP1.value = data.c1;
+      if(data.c2) els.colorP2.value = data.c2;
+      if(data.n1) els.nameP1.value = data.n1;
+      if(data.n2) els.nameP2.value = data.n2;
+    }catch(e){ /* ignore */ }
+  }
+  function savePrefs(){
+    try{
+      localStorage.setItem('othello_custom_prefs', JSON.stringify({
+        c1: els.colorP1.value, c2: els.colorP2.value,
+        n1: els.nameP1.value, n2: els.nameP2.value
+      }));
+    }catch(e){ /* ignore */ }
+  }
+
+  // ---------- color helpers ----------
+  function hexToRgb(hex){
+    hex = hex.replace('#','');
+    if(hex.length===3){ hex = hex.split('').map(function(c){return c+c;}).join(''); }
+    var num = parseInt(hex,16);
+    return { r:(num>>16)&255, g:(num>>8)&255, b:num&255 };
+  }
+  function luminance(hex){
+    var c = hexToRgb(hex);
+    var a = [c.r,c.g,c.b].map(function(v){
+      v/=255;
+      return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4);
+    });
+    return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2];
+  }
+  function contrastRing(hex){
+    // returns a strong outline color that reads against the fill
+    return luminance(hex) > 0.5 ? 'rgba(0,0,0,.55)' : 'rgba(255,255,255,.6)';
+  }
+  function colorDistance(h1,h2){
+    var a = hexToRgb(h1), b = hexToRgb(h2);
+    return Math.sqrt(Math.pow(a.r-b.r,2)+Math.pow(a.g-b.g,2)+Math.pow(a.b-b.b,2));
+  }
+
+  function checkColors(){
+    var c1 = els.colorP1.value, c2 = els.colorP2.value;
+    var warn = els.colorWarning;
+    warn.className = 'warning-box';
+    if(c1.toLowerCase() === c2.toLowerCase()){
+      warn.textContent = '⚠️ Warna kedua pemain sama persis — pilih warna yang berbeda dulu.';
+      warn.classList.add('show','danger');
+      els.startBtn.disabled = true;
+      return;
+    }
+    var dist = colorDistance(c1,c2);
+    if(dist < 45){
+      warn.textContent = '⚠️ Kedua warna cukup mirip, agak susah dibedakan saat main. Boleh lanjut, tapi pertimbangkan warna yang lebih kontras.';
+      warn.classList.add('show','warn');
+    } else {
+      warn.classList.remove('show');
+    }
+    els.startBtn.disabled = false;
+  }
+
+  // ---------- board logic ----------
+  function newBoard(){
+    var b = [];
+    for(var r=0;r<8;r++){ b.push(new Array(8).fill(EMPTY)); }
+    b[3][3]=P2; b[3][4]=P1; b[4][3]=P1; b[4][4]=P2;
+    return b;
+  }
+
+  function opponent(p){ return p===P1 ? P2 : P1; }
+
+  function flipsForMove(board, r, c, player){
+    if(board[r][c] !== EMPTY) return [];
+    var opp = opponent(player);
+    var allFlips = [];
+    for(var d=0; d<DIRS.length; d++){
+      var dr=DIRS[d][0], dc=DIRS[d][1];
+      var rr=r+dr, cc=c+dc;
+      var line = [];
+      while(rr>=0 && rr<8 && cc>=0 && cc<8 && board[rr][cc]===opp){
+        line.push([rr,cc]);
+        rr+=dr; cc+=dc;
+      }
+      if(line.length>0 && rr>=0 && rr<8 && cc>=0 && cc<8 && board[rr][cc]===player){
+        allFlips = allFlips.concat(line);
+      }
+    }
+    return allFlips;
+  }
+
+  function validMoves(board, player){
+    var moves = [];
+    for(var r=0;r<8;r++){
+      for(var c=0;c<8;c++){
+        if(board[r][c]===EMPTY){
+          var f = flipsForMove(board,r,c,player);
+          if(f.length>0) moves.push([r,c]);
+        }
+      }
+    }
+    return moves;
+  }
+
+  function applyMove(board, r, c, player){
+    var flips = flipsForMove(board, r, c, player);
+    board[r][c] = player;
+    flips.forEach(function(cell){ board[cell[0]][cell[1]] = player; });
+    return flips;
+  }
+
+  function countDiscs(board){
+    var s1=0, s2=0;
+    for(var r=0;r<8;r++) for(var c=0;c<8;c++){
+      if(board[r][c]===P1) s1++;
+      else if(board[r][c]===P2) s2++;
+    }
+    return { 1:s1, 2:s2 };
+  }
+
+  // ---------- rendering ----------
+  var cellEls = [];
+
+  function buildBoardDom(){
+    els.board.innerHTML = '';
+    cellEls = [];
+    for(var r=0;r<8;r++){
+      var row = [];
+      for(var c=0;c<8;c++){
+        var cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.r = r; cell.dataset.c = c;
+        cell.addEventListener('click', onCellClick);
+        els.board.appendChild(cell);
+        row.push(cell);
+      }
+      cellEls.push(row);
+    }
+  }
+
+  function render(){
+    var moves = state.over ? [] : validMoves(state.board, state.current);
+    var moveSet = {};
+    moves.forEach(function(m){ moveSet[m[0]+'-'+m[1]] = true; });
+
+    for(var r=0;r<8;r++){
+      for(var c=0;c<8;c++){
+        var cell = cellEls[r][c];
+        cell.innerHTML = '';
+        cell.classList.remove('valid');
+        var v = state.board[r][c];
+        if(v!==EMPTY){
+          var disc = document.createElement('div');
+          disc.className = 'disc';
+          var color = state.players[v].color;
+          disc.style.background = color;
+          disc.style.boxShadow =
+            '0 0 0 2.5px ' + contrastRing(color) + ', ' +
+            'inset 0 -3px 5px rgba(0,0,0,.25), inset 0 2px 3px rgba(255,255,255,.35)';
+          cell.appendChild(disc);
+        } else if(moveSet[r+'-'+c]){
+          cell.classList.add('valid');
+          var dot = document.createElement('div');
+          dot.className = 'hint-dot';
+          cell.appendChild(dot);
+        }
+      }
+    }
+
+    var scores = countDiscs(state.board);
+    els.chipScore1.textContent = scores[1];
+    els.chipScore2.textContent = scores[2];
+    els.swatch1.style.background = state.players[1].color;
+    els.swatch2.style.background = state.players[2].color;
+    els.swatch1.style.boxShadow = '0 0 0 2px ' + contrastRing(state.players[1].color);
+    els.swatch2.style.boxShadow = '0 0 0 2px ' + contrastRing(state.players[2].color);
+    els.chipName1.textContent = state.players[1].name;
+    els.chipName2.textContent = state.players[2].name;
+    els.chip1.classList.toggle('active', state.current===P1 && !state.over);
+    els.chip2.classList.toggle('active', state.current===P2 && !state.over);
+
+    if(!state.over){
+      els.statusLine.textContent = 'Giliran ' + state.players[state.current].name;
+    }
+  }
+
+  function onCellClick(e){
+    if(state.over) return;
+    var r = parseInt(e.currentTarget.dataset.r,10);
+    var c = parseInt(e.currentTarget.dataset.c,10);
+    var flips = flipsForMove(state.board, r, c, state.current);
+    if(flips.length===0) return;
+    applyMove(state.board, r, c, state.current);
+    advanceTurn();
+  }
+
+  function advanceTurn(){
+    var next = opponent(state.current);
+    var nextMoves = validMoves(state.board, next);
+    var curMoves = validMoves(state.board, opponent(next));
+
+    if(nextMoves.length>0){
+      state.current = next;
+      render();
+      return;
+    }
+    // next player must pass
+    if(curMoves.length>0){
+      state.current = opponent(next); // stays same player again? actually keep original mover if opponent has no moves at all elsewhere
+    }
+    // recompute: if the player who is "next" has no moves, but the other still does, show pass and give turn back
+    var otherHasMoves = validMoves(state.board, next).length>0;
+    if(!otherHasMoves){
+      var currentStillHasMoves = validMoves(state.board, opponent(next)).length>0;
+      if(currentStillHasMoves){
+        state.current = opponent(next);
+        render();
+        els.statusLine.textContent = state.players[next].name + ' tidak punya langkah, giliran dilewati.';
+        checkGameEndIfStuck();
+        return;
+      } else {
+        endGame();
+        return;
+      }
+    }
+  }
+
+  function checkGameEndIfStuck(){
+    var p1m = validMoves(state.board, P1).length;
+    var p2m = validMoves(state.board, P2).length;
+    if(p1m===0 && p2m===0){ endGame(); }
+  }
+
+  function endGame(){
+    state.over = true;
+    render();
+    var scores = countDiscs(state.board);
+    var s1 = scores[1], s2 = scores[2];
+    var title, swatchColor;
+    if(s1===s2){
+      title = 'Seri!';
+      swatchColor = 'linear-gradient(90deg,' + state.players[1].color + ',' + state.players[2].color + ')';
+    } else {
+      var winner = s1>s2 ? 1 : 2;
+      title = state.players[winner].name + ' Menang!';
+      swatchColor = state.players[winner].color;
+    }
+    els.statusLine.textContent = 'Permainan selesai';
+    els.winnerTitle.textContent = title;
+    els.winnerDesc.textContent = state.players[1].name + ': ' + s1 + '  •  ' + state.players[2].name + ': ' + s2;
+    els.winnerSwatch.style.background = swatchColor;
+    els.winnerSwatch.style.boxShadow = s1===s2 ? '0 0 0 2.5px rgba(0,0,0,.4)' : '0 0 0 2.5px ' + contrastRing(swatchColor);
+    els.overlay.classList.remove('hidden');
+  }
+
+  function startGame(){
+    var n1 = els.nameP1.value.trim() || 'Pemain 1';
+    var n2 = els.nameP2.value.trim() || 'Pemain 2';
+    state.players[1] = { color: els.colorP1.value, name: n1 };
+    state.players[2] = { color: els.colorP2.value, name: n2 };
+    state.board = newBoard();
+    state.current = P1;
+    state.over = false;
+    savePrefs();
+
+    els.setupScreen.classList.add('hidden');
+    els.gameScreen.classList.remove('hidden');
+    els.overlay.classList.add('hidden');
+    buildBoardDom();
+    render();
+  }
+
+  function backToSetup(){
+    els.gameScreen.classList.add('hidden');
+    els.overlay.classList.add('hidden');
+    els.setupScreen.classList.remove('hidden');
+  }
+
+  // ---------- events ----------
+  els.colorP1.addEventListener('input', checkColors);
+  els.colorP2.addEventListener('input', checkColors);
+  els.swapBtn.addEventListener('click', function(){
+    var tmp = els.colorP1.value;
+    els.colorP1.value = els.colorP2.value;
+    els.colorP2.value = tmp;
+    var tmpN = els.nameP1.value;
+    els.nameP1.value = els.nameP2.value;
+    els.nameP2.value = tmpN;
+    checkColors();
+  });
+  els.startBtn.addEventListener('click', startGame);
+  els.restartBtn.addEventListener('click', startGame);
+  els.backBtn.addEventListener('click', backToSetup);
+  els.overlayRestartBtn.addEventListener('click', startGame);
+
+  loadSaved();
+  checkColors();
+})();
+</script>
+</body>
+</html>
