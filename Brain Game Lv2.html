@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Coding Pertamaku - Level 2 Learner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF7EF;
+    --card:#FFFFFF;
+    --ink:#20263A;
+    --ink-soft:#6B7086;
+    --accent:#1FAFA4;
+    --accent-dark:#158F86;
+    --accent-2:#FF9F3E;
+    --success:#3FBF7A;
+    --danger:#E85A45;
+    --border:#E7E1D3;
+    --shadow: 0 5px 0 rgba(32,38,58,0.14);
+    --radius:20px;
+    --font-head:'Baloo 2', system-ui, sans-serif;
+    --font-body:'Nunito', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#161A2B;
+      --card:#212841;
+      --ink:#EFF1FF;
+      --ink-soft:#A9AECB;
+      --border:#38406A;
+      --shadow: 0 5px 0 rgba(0,0,0,0.4);
+    }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);}
+  h1,h2,h3{font-family:var(--font-head);margin:0 0 6px;}
+  p{margin:0 0 10px;line-height:1.45;}
+  button{font-family:var(--font-body);cursor:pointer;}
+  #app{max-width:480px;margin:0 auto;min-height:100vh;padding:0 16px 40px;}
+  .screen{padding-top:8px;}
+
+  .instruction{color:var(--ink-soft);font-weight:700;font-size:14px;margin-bottom:14px;}
+
+  .hero{text-align:center;padding:28px 6px 10px;}
+  .hero-badge{font-size:42px;line-height:1;margin-bottom:6px;}
+  .hero-sub{color:var(--ink-soft);font-weight:700;}
+
+  .field{width:100%;padding:14px 16px;border-radius:14px;border:2px solid var(--border);background:var(--card);color:var(--ink);font-size:16px;font-weight:700;font-family:var(--font-body);}
+  .field:focus{outline:none;border-color:var(--accent);}
+
+  .btn-primary{background:var(--accent);color:#fff;border:none;border-radius:16px;padding:14px 22px;font-weight:800;font-size:16px;box-shadow:0 5px 0 var(--accent-dark);}
+  .btn-primary:active{transform:translateY(3px);box-shadow:0 2px 0 var(--accent-dark);}
+  .btn-secondary{background:var(--card);color:var(--ink);border:2px solid var(--border);border-radius:16px;padding:12px 20px;font-weight:800;font-size:15px;}
+  .btn-danger{background:var(--danger);color:#fff;border:none;border-radius:14px;padding:10px 16px;font-weight:800;}
+  .btn-full{width:100%;}
+  .controls-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+
+  .section-title{font-size:18px;margin-top:22px;}
+
+  .player-list{display:flex;flex-direction:column;gap:10px;}
+  .player-card{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--border);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);cursor:pointer;}
+  .player-avatar{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0;}
+  .player-meta{flex:1;}
+  .player-meta b{display:block;font-size:16px;}
+  .player-meta span{color:var(--ink-soft);font-size:13px;font-weight:700;}
+  .player-remove{background:none;border:none;color:var(--ink-soft);font-size:18px;padding:4px 8px;}
+
+  .newplayer-box{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-top:14px;}
+
+  /* map */
+  .map-header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 6px;}
+  .map-header h2{font-size:20px;margin:0;}
+  .icon-btn{background:var(--card);border:2px solid var(--border);border-radius:12px;width:40px;height:40px;font-size:18px;display:flex;align-items:center;justify-content:center;}
+  .level-grid{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .level-card{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--border);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);}
+  .level-card.locked{opacity:0.5;}
+  .level-icon{width:46px;height:46px;border-radius:14px;background:rgba(31,175,164,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .level-info{flex:1;}
+  .level-info b{display:block;font-size:15px;}
+  .level-info span{color:var(--ink-soft);font-size:12.5px;font-weight:700;}
+  .level-stars{font-size:14px;letter-spacing:1px;color:var(--accent-2);white-space:nowrap;}
+
+  /* game screen */
+  .game-header{display:flex;align-items:center;gap:10px;padding:14px 0 4px;}
+  .game-header h2{font-size:18px;margin:0;flex:1;}
+  .game-body{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-top:8px;}
+  .msg-flash{background:var(--accent-2);color:#fff;font-weight:800;padding:8px 12px;border-radius:12px;margin-bottom:10px;text-align:center;font-size:14px;}
+
+  /* legend / palette / slots */
+  .legend-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:16px;padding-bottom:14px;border-bottom:2px dashed var(--border);}
+  .legend-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:800;font-size:13px;color:var(--ink-soft);}
+  .swatch{width:34px;height:34px;border-radius:50%;border:2px solid rgba(0,0,0,0.12);}
+  .swatch.square{border-radius:8px;}
+
+  .slot-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0;}
+  .slot-cell{width:42px;height:42px;border-radius:50%;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--ink-soft);background:var(--bg);position:relative;}
+  .slot-cell.square{border-radius:10px;}
+  .slot-cell.given{border-style:solid;color:#fff;}
+  .slot-cell.editable{cursor:pointer;}
+  .slot-cell.editable.active{border-color:var(--accent);border-width:3px;}
+  .slot-cell.filled{border-style:solid;color:#fff;}
+
+  .palette-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px;}
+  .palette-btn{width:40px;height:40px;border-radius:50%;border:2px solid rgba(0,0,0,0.15);padding:0;}
+  .palette-btn.letter{width:auto;height:40px;min-width:40px;padding:0 10px;border-radius:10px;color:#fff;font-weight:800;font-size:15px;}
+
+  .mc-options{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0 16px;}
+  .mc-btn{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:10px 16px;font-weight:800;font-size:15px;color:var(--ink);}
+  .mc-btn.selected{border-color:var(--accent);background:rgba(31,175,164,0.15);}
+
+  .qgroup{margin-bottom:18px;padding-bottom:14px;border-bottom:2px dashed var(--border);}
+  .qgroup:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .qprompt{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;font-weight:800;font-size:16px;}
+
+  .stepper-row{display:flex;justify-content:space-around;gap:8px;margin:16px 0;}
+  .stepper{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .stepper .icon{font-size:26px;}
+  .stepper .ctrl{display:flex;align-items:center;gap:8px;}
+  .stepper button{width:34px;height:34px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-weight:800;font-size:18px;}
+  .stepper .val{width:30px;text-align:center;font-weight:800;font-size:18px;}
+
+  .icon-strip{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;font-size:26px;background:var(--bg);border-radius:14px;padding:10px;margin-bottom:14px;}
+
+  .combo{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;}
+  .combo .inner{width:22px;height:22px;border-radius:50%;}
+
+  .quadrant{width:60px;height:60px;border-radius:50%;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border:2px solid rgba(0,0,0,0.12);}
+  .quadrant div{width:100%;height:100%;}
+
+  .word-key-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:16px;}
+  .word-key-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .word-key-item .swatch{width:36px;height:36px;}
+  .word-key-item span{font-weight:800;font-size:15px;}
+
+  .numline{width:100%;max-width:320px;margin:0 auto 14px;display:block;}
+
+  /* result overlay */
+  .overlay{position:fixed;inset:0;background:rgba(20,20,35,0.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;}
+  .result-card{background:var(--card);border-radius:24px;padding:28px 22px;max-width:340px;width:100%;text-align:center;box-shadow:0 10px 0 rgba(0,0,0,0.15);}
+  .result-emoji{font-size:56px;margin-bottom:6px;}
+
+  .footer-note{text-align:center;color:var(--ink-soft);font-size:12px;font-weight:700;margin-top:26px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+  "use strict";
+  var STORAGE_KEY = 'codingPertamakuL2_v1';
+  var MAX_PROFILES = 4;
+
+  /* ============ dom helper ============ */
+  function el(tag, attrs){
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){
+      if(k === 'class'){ node.className = attrs[k]; }
+      else if(k === 'style'){ Object.assign(node.style, attrs[k]); }
+      else if(k.indexOf('on') === 0){ node.addEventListener(k.slice(2), attrs[k]); }
+      else { node.setAttribute(k, attrs[k]); }
+    });
+    for(var i=2;i<arguments.length;i++){
+      var child = arguments[i];
+      if(child === null || child === undefined) continue;
+      if(typeof child === 'string' || typeof child === 'number'){ node.appendChild(document.createTextNode(child)); }
+      else { node.appendChild(child); }
+    }
+    return node;
+  }
+
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function pick(arr){ return arr[randInt(0,arr.length-1)]; }
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){ var j = randInt(0,i); var t=a[i]; a[i]=a[j]; a[j]=t; }
+    return a;
+  }
+  function sampleN(arr, n){ return shuffle(arr).slice(0, n); }
+
+  /* ============ storage ============ */
+  function loadDB(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return { last:null, players:{} };
+  }
+  function saveDB(db){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }catch(e){}
+  }
+  function ensurePlayer(db, name){
+    if(!db.players[name]){
+      db.players[name] = { unlocked:1, levels:{} };
+    }
+    return db.players[name];
+  }
+
+  /* ============ shared palettes ============ */
+  var COLORS9 = [
+    {n:1, name:'Merah', hex:'#F5453D'},
+    {n:2, name:'Ungu', hex:'#8B5CF6'},
+    {n:3, name:'Kuning', hex:'#FFD54A'},
+    {n:4, name:'Hijau', hex:'#6FCF64'},
+    {n:5, name:'Cyan', hex:'#2FC6D8'},
+    {n:6, name:'Abu-abu', hex:'#B9BCC9'},
+    {n:7, name:'Oranye', hex:'#FF9F3E'},
+    {n:8, name:'Pink', hex:'#FF6FB0'},
+    {n:9, name:'Biru', hex:'#3E8EF7'}
+  ];
+  var PALETTE12 = ['#F5453D','#8B5CF6','#FFD54A','#6FCF64','#2FC6D8','#FF9F3E','#FF6FB0','#3E8EF7','#C77DFF','#00BFA5','#8D6E63','#EC407A'];
+
+  function colorByN(n){ return COLORS9.filter(function(c){return c.n===n;})[0]; }
+
+  function renderLegend(container, items){
+    var row = el('div',{class:'legend-row'});
+    items.forEach(function(it){
+      var sw = el('div',{class:'swatch'+(it.square?' square':''), style:{background:it.hex}});
+      row.appendChild(el('div',{class:'legend-item'}, sw, it.label));
+    });
+    container.appendChild(row);
+  }
+
+  /* ============ generic: color slot fill ============ */
+  function buildColorSlotFill(container, opts){
+    // opts.slots: [{ given:bool, hex (for given), correct (hex, for editable), label:optional text, shape:'circle'|'square' }]
+    // opts.palette: [{hex, label:optional}]
+    var slotEls = [];
+    var answers = {};
+    var selectedIdx = null;
+
+    var row = el('div',{class:'slot-row'});
+    opts.slots.forEach(function(slot, idx){
+      var shapeClass = slot.shape === 'square' ? ' square' : '';
+      var cell;
+      if(slot.given){
+        cell = el('div',{class:'slot-cell given'+shapeClass, style:{background:slot.hex, borderColor:slot.hex}});
+      } else {
+        cell = el('div',{class:'slot-cell editable'+shapeClass, onclick:function(){
+          selectedIdx = idx;
+          slotEls.forEach(function(c,i){ c.classList.toggle('active', i===idx); });
+        }});
+      }
+      if(slot.label){
+        var lab = el('span',{style:{position:'relative', zIndex:2, textShadow:'0 1px 2px rgba(0,0,0,0.35)'}}, slot.label);
+        cell.appendChild(lab);
+      }
+      slotEls.push(cell);
+      row.appendChild(cell);
+    });
+    container.appendChild(row);
+
+    var pal = el('div',{class:'palette-row'});
+    opts.palette.forEach(function(p){
+      var btn = el('button',{class:'palette-btn', style:{background:p.hex}, onclick:function(){
+        if(selectedIdx === null) return;
+        answers[selectedIdx] = p.hex;
+        var cell = slotEls[selectedIdx];
+        cell.style.background = p.hex;
+        cell.style.borderColor = p.hex;
+        cell.classList.add('filled');
+      }});
+      if(p.label) btn.textContent = p.label;
+      pal.appendChild(btn);
+    });
+    container.appendChild(pal);
+
+    return {
+      check: function(){
+        return opts.slots.every(function(slot, idx){
+          if(slot.given) return true;
+          return answers[idx] === slot.correct;
+        });
+      }
+    };
+  }
+
+  /* ============ generic: multiple choice ============ */
+  function buildMultipleChoice(container, optionSpecs, correctIndex){
+    // optionSpecs: array of {node: DOMElement}
+    var chosen = -1;
+    var buttons = [];
+    var wrap = el('div',{class:'mc-options'});
+    optionSpecs.forEach(function(spec, idx){
+      var btn = el('button',{class:'mc-btn', onclick:function(){
+        chosen = idx;
+        buttons.forEach(function(b,i){ b.classList.toggle('selected', i===idx); });
+      }}, spec.node);
+      buttons.push(btn);
+      wrap.appendChild(btn);
+    });
+    container.appendChild(wrap);
+    return { check: function(){ return chosen === correctIndex; } };
+  }
+
+  function combineCheckers(list){
+    return { check: function(){ return list.every(function(c){ return c.check(); }); } };
+  }
+
+  function flashMsg(container, text){
+    var m = el('div',{class:'msg-flash'}, text);
+    container.insertBefore(m, container.firstChild);
+    setTimeout(function(){ m.remove(); }, 1600);
+  }
+
+  /* ============ level builders ============ */
+
+  // 1. Membuat Pola: sequence of colored slots, empty, must fill matching a numeric code using an 8-color key
+  function genMembuatPola(container){
+    var key = COLORS9.slice(0,8);
+    renderLegend(container, key.map(function(c){ return {hex:c.hex, label:c.n}; }));
+    var len = randInt(5,7);
+    var code = [];
+    for(var i=0;i<len;i++) code.push(pick(key).n);
+    container.appendChild(el('p',{class:'instruction'}, 'Susun warna sesuai kode: ' + code.join('-')));
+    var slots = code.map(function(n){ return { given:false, correct: colorByN(n).hex }; });
+    var palette = key.map(function(c){ return {hex:c.hex}; });
+    return buildColorSlotFill(container, { slots:slots, palette:palette });
+  }
+
+  // 2. Coding Warna: grid of numbered cells (5-color key), fill each with matching color
+  function genCodingWarna(container){
+    var key = COLORS9.slice(0,5);
+    renderLegend(container, key.map(function(c){ return {hex:c.hex, label:c.n}; }));
+    container.appendChild(el('p',{class:'instruction'}, 'Warnai setiap kotak sesuai nomor dan kuncinya!'));
+    var count = randInt(6,8);
+    var slots = [];
+    for(var i=0;i<count;i++){
+      var n = pick(key).n;
+      slots.push({ given:false, correct: colorByN(n).hex, label:String(n), shape:'square' });
+    }
+    var palette = key.map(function(c){ return {hex:c.hex}; });
+    return buildColorSlotFill(container, { slots:slots, palette:palette });
+  }
+
+  // 3. Mengikuti Pola Warna: continue a repeating color pattern
+  function genMengikutiPola(container){
+    var unitLen = randInt(2,3);
+    var usedColors = sampleN(PALETTE12, unitLen === 2 ? 2 : 3);
+    var unit = [];
+    for(var i=0;i<unitLen;i++) unit.push(usedColors[i % usedColors.length]);
+    // occasionally repeat one color twice inside the unit for variety
+    if(unitLen === 3 && Math.random() < 0.5) unit[1] = unit[0];
+
+    container.appendChild(el('p',{class:'instruction'}, 'Lanjutkan pola warna berikut ini!'));
+    var givenCount = unit.length * 2;
+    var blankCount = 5;
+    var total = givenCount + blankCount;
+    var slots = [];
+    for(var i=0;i<total;i++){
+      var expected = unit[i % unit.length];
+      if(i < givenCount){
+        slots.push({ given:true, hex: expected });
+      } else {
+        slots.push({ given:false, correct: expected });
+      }
+    }
+    var palette = usedColors.map(function(hex){ return {hex:hex}; });
+    return buildColorSlotFill(container, { slots:slots, palette:palette });
+  }
+
+  // 4. Coding Bentuk & Warna: rows share a color, first cell given, rest editable (square cells)
+  function genBentukWarna(container){
+    var rows = 3;
+    var cols = 4;
+    var rowColors = sampleN(PALETTE12, rows);
+    container.appendChild(el('p',{class:'instruction'}, 'Warnai kotak kosong sesuai warna contoh di baris masing-masing!'));
+    var slots = [];
+    for(var r=0;r<rows;r++){
+      for(var c=0;c<cols;c++){
+        if(c === 0){ slots.push({ given:true, hex: rowColors[r], shape:'square' }); }
+        else { slots.push({ given:false, correct: rowColors[r], shape:'square' }); }
+      }
+    }
+    var palette = rowColors.map(function(hex){ return {hex:hex}; });
+    var api = buildColorSlotFill(container, { slots:slots, palette:palette });
+    return api;
+  }
+
+  // 5. Coding Math: count animal icons of each type
+  function genCodingMath(container){
+    var animals = [
+      {icon:'🐸', key:'frog'},
+      {icon:'🐰', key:'rabbit'},
+      {icon:'🐹', key:'mouse'}
+    ];
+    var counts = { frog: randInt(1,4), rabbit: randInt(1,4), mouse: randInt(1,4) };
+    var icons = [];
+    animals.forEach(function(a){ for(var i=0;i<counts[a.key];i++) icons.push(a.icon); });
+    icons = shuffle(icons);
+
+    container.appendChild(el('p',{class:'instruction'}, 'Hitung ada berapa banyak setiap hewan, lalu isi kotaknya!'));
+    var strip = el('div',{class:'icon-strip'});
+    icons.forEach(function(ic){ strip.appendChild(el('span',{}, ic)); });
+    container.appendChild(strip);
+
+    var vals = { frog:0, rabbit:0, mouse:0 };
+    var valEls = {};
+    var row = el('div',{class:'stepper-row'});
+    animals.forEach(function(a){
+      var valEl = el('span',{class:'val'}, '0');
+      valEls[a.key] = valEl;
+      var dec = el('button',{onclick:function(){ vals[a.key] = Math.max(0, vals[a.key]-1); valEl.textContent = vals[a.key]; }}, '-');
+      var inc = el('button',{onclick:function(){ vals[a.key] = Math.min(9, vals[a.key]+1); valEl.textContent = vals[a.key]; }}, '+');
+      row.appendChild(el('div',{class:'stepper'},
+        el('div',{class:'icon'}, a.icon),
+        el('div',{class:'ctrl'}, dec, valEl, inc)
+      ));
+    });
+    container.appendChild(row);
+
+    return { check: function(){
+      return vals.frog === counts.frog && vals.rabbit === counts.rabbit && vals.mouse === counts.mouse;
+    }};
+  }
+
+  // shared: decode two colors from a 9-color key then combine with an operator
+  function genDecodeOp(container, opLabel, opFn, ensureNonNeg){
+    var key = COLORS9;
+    renderLegend(container, key.map(function(c){ return {hex:c.hex, label:c.n}; }));
+    var a = randInt(1,9), b = randInt(1,9);
+    if(ensureNonNeg && b > a){ var t=a; a=b; b=t; }
+    container.appendChild(el('p',{class:'instruction'}, 'Ubah warna menjadi angka sesuai kunci, lalu hitung!'));
+    var prompt = el('div',{class:'qprompt'},
+      el('div',{class:'swatch', style:{background:colorByN(a).hex}}),
+      el('span',{}, opLabel),
+      el('div',{class:'swatch', style:{background:colorByN(b).hex}}),
+      el('span',{}, '=')
+    );
+    container.appendChild(prompt);
+    var correct = opFn(a,b);
+    var choices = new Set([correct]);
+    while(choices.size < 4){ choices.add(Math.max(0, correct + randInt(-3,3))); }
+    var choiceArr = shuffle(Array.from(choices));
+    var correctIdx = choiceArr.indexOf(correct);
+    var options = choiceArr.map(function(v){ return { node: document.createTextNode(String(v)) }; });
+    return buildMultipleChoice(container, options, correctIdx);
+  }
+
+  // 6. Decoding & Penjumlahan
+  function genDecodingTambah(container){
+    return genDecodeOp(container, '+', function(a,b){ return a+b; }, false);
+  }
+  // 7. Decoding & Pengurangan
+  function genDecodingKurang(container){
+    return genDecodeOp(container, '-', function(a,b){ return a-b; }, true);
+  }
+
+  // 8. Decoding Alfabet: decode a word from a color key
+  var WORD_LIST = ['AKU','IBU','ADIK','MAIN','BUKU','MEJA','MATA','KAKI','SUSU','NASI','BOLA','KUDA','AYAM','IKAN','BUNGA','SAYANG','HEBAT','AYAH'];
+  function genDecodingAlfabet(container){
+    var word = pick(WORD_LIST);
+    var uniqueLetters = Array.from(new Set(word.split('')));
+    var colorsForLetters = sampleN(PALETTE12, uniqueLetters.length);
+    var letterColor = {};
+    uniqueLetters.forEach(function(ch, i){ letterColor[ch] = colorsForLetters[i]; });
+
+    container.appendChild(el('p',{class:'instruction'}, 'Cocokkan warna dengan huruf, lalu temukan kata rahasianya!'));
+
+    var keyRow = el('div',{class:'word-key-row'});
+    var shuffledLetters = shuffle(uniqueLetters);
+    shuffledLetters.forEach(function(ch){
+      keyRow.appendChild(el('div',{class:'word-key-item'},
+        el('div',{class:'swatch', style:{background:letterColor[ch]}}),
+        el('span',{}, ch)
+      ));
+    });
+    container.appendChild(keyRow);
+
+    // encoded word: colored circles only
+    var encRow = el('div',{class:'slot-row'});
+    word.split('').forEach(function(ch){
+      encRow.appendChild(el('div',{class:'slot-cell given', style:{background:letterColor[ch], borderColor:letterColor[ch]}}));
+    });
+    container.appendChild(encRow);
+
+    // answer slots
+    var answerEls = [];
+    var answers = [];
+    var selectedIdx = null;
+    var ansRow = el('div',{class:'slot-row'});
+    word.split('').forEach(function(ch, idx){
+      var cell = el('div',{class:'slot-cell editable', onclick:function(){
+        selectedIdx = idx;
+        answerEls.forEach(function(c,i){ c.classList.toggle('active', i===idx); });
+      }});
+      answerEls.push(cell);
+      ansRow.appendChild(cell);
+    });
+    container.appendChild(ansRow);
+
+    var pal = el('div',{class:'palette-row'});
+    shuffledLetters.forEach(function(ch){
+      var btn = el('button',{class:'palette-btn letter', style:{background:letterColor[ch]}, onclick:function(){
+        if(selectedIdx === null) return;
+        answers[selectedIdx] = ch;
+        answerEls[selectedIdx].textContent = ch;
+        answerEls[selectedIdx].style.background = letterColor[ch];
+        answerEls[selectedIdx].style.borderColor = letterColor[ch];
+        answerEls[selectedIdx].style.color = '#fff';
+        answerEls[selectedIdx].classList.add('filled');
+      }}, ch);
+      pal.appendChild(btn);
+    });
+    container.appendChild(pal);
+
+    return { check: function(){ return answers.join('') === word; } };
+  }
+
+  // number line svg
+  function numberLineSvg(){
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns,'svg');
+    svg.setAttribute('viewBox','0 0 320 46');
+    svg.setAttribute('class','numline');
+    var line = document.createElementNS(ns,'line');
+    line.setAttribute('x1','10'); line.setAttribute('x2','310'); line.setAttribute('y1','20'); line.setAttribute('y2','20');
+    line.setAttribute('stroke','currentColor'); line.setAttribute('stroke-width','2');
+    svg.appendChild(line);
+    for(var i=0;i<=10;i++){
+      var x = 10 + i*30;
+      var tick = document.createElementNS(ns,'line');
+      tick.setAttribute('x1',x); tick.setAttribute('x2',x); tick.setAttribute('y1','14'); tick.setAttribute('y2','26');
+      tick.setAttribute('stroke','currentColor'); tick.setAttribute('stroke-width','2');
+      svg.appendChild(tick);
+      var txt = document.createElementNS(ns,'text');
+      txt.setAttribute('x',x); txt.setAttribute('y','42'); txt.setAttribute('text-anchor','middle');
+      txt.setAttribute('font-size','11'); txt.setAttribute('fill','currentColor');
+      txt.textContent = i;
+      svg.appendChild(txt);
+    }
+    return svg;
+  }
+
+  // 9/10. Garis Penjumlahan & Pengurangan
+  function genGarisOp(container, opLabel, opFn, isSub){
+    container.appendChild(el('p',{class:'instruction'}, 'Gunakan garis bilangan untuk menghitung!'));
+    var lineWrap = el('div',{style:{color:'var(--ink-soft)'}}, numberLineSvg());
+    container.appendChild(lineWrap);
+    var a,b;
+    if(isSub){ a = randInt(4,10); b = randInt(1,a); }
+    else { a = randInt(1,6); b = randInt(1, 10-a); }
+    var correct = opFn(a,b);
+    container.appendChild(el('div',{class:'qprompt'}, a + ' ' + opLabel + ' ' + b + ' ='));
+    var choices = new Set([correct]);
+    while(choices.size < 4){ var alt = correct + randInt(-3,3); if(alt>=0 && alt<=10) choices.add(alt); }
+    var arr = shuffle(Array.from(choices));
+    var idx = arr.indexOf(correct);
+    var options = arr.map(function(v){ return { node: document.createTextNode(String(v)) }; });
+    return buildMultipleChoice(container, options, idx);
+  }
+  function genGarisTambah(container){ return genGarisOp(container, '+', function(a,b){return a+b;}, false); }
+  function genGarisKurang(container){ return genGarisOp(container, '-', function(a,b){return a-b;}, true); }
+
+  // combo badge renderer
+  function comboNode(outerHex, innerHex){
+    return el('div',{class:'combo', style:{background:outerHex}}, el('div',{class:'inner', style:{background:innerHex}}));
+  }
+
+  // 11. Decoding Bentuk Berwarna: combo circles decode to + - =
+  function genDecodingBentukBerwarna(container){
+    var symbols = ['+','-','='];
+    var colorPairs = [];
+    var pool = sampleN(PALETTE12, 6);
+    for(var i=0;i<3;i++) colorPairs.push({ outer: pool[i*2], inner: pool[i*2+1] });
+    var comboDefs = symbols.map(function(sym, i){ return { symbol: sym, outer: colorPairs[i].outer, inner: colorPairs[i].inner }; });
+
+    container.appendChild(el('p',{class:'instruction'}, 'Kenali kombinasi warna, lalu pilih simbol yang tepat!'));
+    var legend = el('div',{class:'legend-row'});
+    comboDefs.forEach(function(cd){
+      legend.appendChild(el('div',{class:'legend-item'}, comboNode(cd.outer, cd.inner), cd.symbol));
+    });
+    container.appendChild(legend);
+
+    var checkers = [];
+    var rounds = 4;
+    for(var r=0;r<rounds;r++){
+      var cd = pick(comboDefs);
+      var group = el('div',{class:'qgroup'});
+      group.appendChild(el('div',{class:'qprompt'}, comboNode(cd.outer, cd.inner)));
+      var opts = shuffle(symbols);
+      var correctIdx = opts.indexOf(cd.symbol);
+      var optionSpecs = opts.map(function(s){ return { node: document.createTextNode(s) }; });
+      var checker = buildMultipleChoice(group, optionSpecs, correctIdx);
+      checkers.push(checker);
+      container.appendChild(group);
+    }
+    return combineCheckers(checkers);
+  }
+
+  // line style icon (color -> line direction)
+  function lineStyleSvg(hex, angleDeg){
+    var ns='http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns,'svg');
+    svg.setAttribute('viewBox','0 0 46 46');
+    svg.setAttribute('width','46'); svg.setAttribute('height','46');
+    var circle = document.createElementNS(ns,'circle');
+    circle.setAttribute('cx','23'); circle.setAttribute('cy','23'); circle.setAttribute('r','20');
+    circle.setAttribute('fill','none'); circle.setAttribute('stroke',hex); circle.setAttribute('stroke-width','3');
+    svg.appendChild(circle);
+    var rad = angleDeg * Math.PI/180;
+    var dx = Math.cos(rad)*20, dy = Math.sin(rad)*20;
+    var line = document.createElementNS(ns,'line');
+    line.setAttribute('x1', 23-dx); line.setAttribute('y1', 23-dy);
+    line.setAttribute('x2', 23+dx); line.setAttribute('y2', 23+dy);
+    line.setAttribute('stroke',hex); line.setAttribute('stroke-width','3');
+    svg.appendChild(line);
+    return svg;
+  }
+
+  function genCodingWarnaGaris(container){
+    var angles = [0, 90, 45, 135];
+    var colors = sampleN(PALETTE12, 4);
+    container.appendChild(el('p',{class:'instruction'}, 'Ingat garis untuk setiap warna, lalu pilih yang sesuai!'));
+    var legend = el('div',{class:'legend-row'});
+    colors.forEach(function(hex, i){
+      legend.appendChild(el('div',{class:'legend-item'}, lineStyleSvg(hex, angles[i]), ''));
+    });
+    container.appendChild(legend);
+
+    var checkers = [];
+    var rounds = 4;
+    for(var r=0;r<rounds;r++){
+      var idx = randInt(0,3);
+      var hex = colors[idx];
+      var group = el('div',{class:'qgroup'});
+      group.appendChild(el('div',{class:'qprompt'}, el('div',{class:'swatch', style:{background:hex}})));
+      var order = shuffle([0,1,2,3]);
+      var correctPos = order.indexOf(idx);
+      var optionSpecs = order.map(function(oi){ return { node: lineStyleSvg(hex, angles[oi]) }; });
+      var checker = buildMultipleChoice(group, optionSpecs, correctPos);
+      checkers.push(checker);
+      container.appendChild(group);
+    }
+    return combineCheckers(checkers);
+  }
+
+  function quadrantNode(colors){
+    // colors: [TL, TR, BL, BR]
+    return el('div',{class:'quadrant'},
+      el('div',{style:{background:colors[0]}}), el('div',{style:{background:colors[1]}}),
+      el('div',{style:{background:colors[2]}}), el('div',{style:{background:colors[3]}})
+    );
+  }
+
+  function genCodingWarnaAngka(container){
+    var key = COLORS9.slice(0,5);
+    renderLegend(container, key.map(function(c){ return {hex:c.hex, label:c.n}; }));
+    container.appendChild(el('p',{class:'instruction'}, 'Ubah angka jadi warna, lalu pilih lingkaran yang cocok!'));
+
+    var checkers = [];
+    var rounds = 3;
+    for(var r=0;r<rounds;r++){
+      var nums = [pick(key).n, pick(key).n, pick(key).n, pick(key).n];
+      var group = el('div',{class:'qgroup'});
+      var numGrid = el('div',{style:{display:'grid', gridTemplateColumns:'1fr 1fr', width:'60px', margin:'0 auto 10px', fontWeight:'800', textAlign:'center', border:'2px solid var(--border)', borderRadius:'8px', overflow:'hidden'}});
+      nums.forEach(function(n){ numGrid.appendChild(el('div',{style:{padding:'6px', borderBottom:'1px solid var(--border)'}}, String(n))); });
+      group.appendChild(numGrid);
+
+      var correctColors = nums.map(function(n){ return colorByN(n).hex; });
+      var optionsColors = [correctColors];
+      while(optionsColors.length < 4){
+        var alt = nums.map(function(){ return colorByN(pick(key).n).hex; });
+        optionsColors.push(alt);
+      }
+      var order = shuffle([0,1,2,3]);
+      var correctPos = order.indexOf(0);
+      var optionSpecs = order.map(function(oi){ return { node: quadrantNode(optionsColors[oi]) }; });
+      var checker = buildMultipleChoice(group, optionSpecs, correctPos);
+      checkers.push(checker);
+      container.appendChild(group);
+    }
+    return combineCheckers(checkers);
+  }
+
+  function genWarnaGarisOrAngka(container){
+    if(Math.random() < 0.5) return genCodingWarnaGaris(container);
+    return genCodingWarnaAngka(container);
+  }
+
+  var LEVELS = [
+    { title:'Membuat Pola', subtitle:'Susun warna sesuai kode angka', icon:'\uD83E\uDDE9', build:genMembuatPola },
+    { title:'Coding Warna', subtitle:'Warnai kotak sesuai kunci', icon:'\uD83C\uDFA8', build:genCodingWarna },
+    { title:'Mengikuti Pola Warna', subtitle:'Lanjutkan pola yang berulang', icon:'\uD83D\uDD01', build:genMengikutiPola },
+    { title:'Coding Bentuk & Warna', subtitle:'Samakan warna satu baris', icon:'\u25FC\uFE0F', build:genBentukWarna },
+    { title:'Coding Math', subtitle:'Hitung banyak hewan', icon:'\uD83D\uDC38', build:genCodingMath },
+    { title:'Decoding & Penjumlahan', subtitle:'Ubah warna jadi angka, tambahkan', icon:'\u2795', build:genDecodingTambah },
+    { title:'Decoding & Pengurangan', subtitle:'Ubah warna jadi angka, kurangkan', icon:'\u2796', build:genDecodingKurang },
+    { title:'Decoding Alfabet', subtitle:'Temukan kata rahasia', icon:'\uD83D\uDD24', build:genDecodingAlfabet },
+    { title:'Garis Penjumlahan', subtitle:'Melompat di garis bilangan', icon:'\uD83D\uDCC8', build:genGarisTambah },
+    { title:'Garis Pengurangan', subtitle:'Melompat mundur di garis bilangan', icon:'\uD83D\uDCC9', build:genGarisKurang },
+    { title:'Decoding Bentuk Berwarna', subtitle:'Kenali simbol dari kombinasi warna', icon:'\uD83C\uDFAF', build:genDecodingBentukBerwarna },
+    { title:'Coding Warna & Garis/Angka', subtitle:'Cocokkan pola sesuai kunci', icon:'\uD83D\uDD0D', build:genWarnaGarisOrAngka }
+  ];
+
+  /* ============ screens ============ */
+
+  function renderHome(){
+    var app = document.getElementById('app');
+    app.innerHTML = '';
+    var db = loadDB();
+    var names = Object.keys(db.players);
+    var wrap = el('div',{class:'screen home'});
+    wrap.appendChild(el('div',{class:'hero'},
+      el('div',{class:'hero-badge'},'\uD83D\uDD0D\u2728'),
+      el('h1',{},'Coding Pertamaku'),
+      el('p',{class:'hero-sub'},'Level 2: Learner \u2014 tantangan berpikir logis untuk usia 5+')
+    ));
+
+    if(names.length){
+      wrap.appendChild(el('h2',{class:'section-title'},'Lanjutkan Bermain'));
+      var list = el('div',{class:'player-list'});
+      names.forEach(function(name){
+        var p = db.players[name];
+        var doneCount = Object.keys(p.levels).filter(function(k){ return p.levels[k].completed; }).length;
+        var card = el('div',{class:'player-card', onclick:function(){ db.last = name; saveDB(db); renderMap(name); }},
+          el('div',{class:'player-avatar'}, name.trim().charAt(0).toUpperCase() || '?'),
+          el('div',{class:'player-meta'},
+            el('b',{}, name),
+            el('span',{}, doneCount + ' / ' + LEVELS.length + ' level selesai')
+          ),
+          el('button',{class:'player-remove', onclick:function(e){
+            e.stopPropagation();
+            delete db.players[name];
+            if(db.last === name) db.last = null;
+            saveDB(db);
+            renderHome();
+          }}, '\u2715')
+        );
+        list.appendChild(card);
+      });
+      wrap.appendChild(list);
+    }
+
+    if(names.length < MAX_PROFILES){
+      var box = el('div',{class:'newplayer-box'});
+      box.appendChild(el('h3',{}, names.length ? 'Pemain Baru' : 'Mulai Bermain'));
+      var input = el('input',{class:'field', type:'text', placeholder:'Tulis namamu...', maxlength:'16'});
+      box.appendChild(input);
+      box.appendChild(el('button',{class:'btn-primary btn-full', style:{marginTop:'10px'}, onclick:function(){
+        var name = (input.value || '').trim();
+        if(!name) return;
+        var db2 = loadDB();
+        if(!db2.players[name] && Object.keys(db2.players).length >= MAX_PROFILES){
+          flashMsg(box, 'Maksimal 4 nama tersimpan di perangkat ini.');
+          return;
+        }
+        ensurePlayer(db2, name);
+        db2.last = name;
+        saveDB(db2);
+        renderMap(name);
+      }}, 'Mulai'));
+      wrap.appendChild(box);
+    } else if(!names.length){
+      wrap.appendChild(el('p',{class:'instruction'}, 'Maksimal 4 nama tersimpan di perangkat ini.'));
+    }
+
+    wrap.appendChild(el('p',{class:'footer-note'}, 'Progres disimpan otomatis di perangkat ini (localStorage).'));
+    app.appendChild(wrap);
+  }
+
+  function renderMap(name){
+    var app = document.getElementById('app');
+    app.innerHTML = '';
+    var db = loadDB();
+    var p = ensurePlayer(db, name);
+    saveDB(db);
+
+    var wrap = el('div',{class:'screen map'});
+    wrap.appendChild(el('div',{class:'map-header'},
+      el('button',{class:'icon-btn', onclick:renderHome}, '\u2190'),
+      el('h2',{}, 'Halo, ' + name + '!'),
+      el('span',{})
+    ));
+
+    var grid = el('div',{class:'level-grid'});
+    LEVELS.forEach(function(lvl, idx){
+      var unlocked = idx < p.unlocked;
+      var lvlState = p.levels[idx];
+      var stars = lvlState ? lvlState.stars || 0 : 0;
+      var starStr = lvlState && lvlState.completed ? Array(3).fill(0).map(function(_,i){ return i < stars ? '\u2b50' : '\u2606'; }).join('') : '';
+      var card = el('div',{class:'level-card'+(unlocked?'':' locked'), onclick: unlocked ? function(){ renderGame(name, idx); } : null},
+        el('div',{class:'level-icon'}, lvl.icon),
+        el('div',{class:'level-info'},
+          el('b',{}, (idx+1) + '. ' + lvl.title),
+          el('span',{}, lvl.subtitle)
+        ),
+        el('div',{class:'level-stars'}, unlocked ? starStr : '\uD83D\uDD12')
+      );
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+    app.appendChild(wrap);
+  }
+
+  function renderGame(name, idx){
+    var app = document.getElementById('app');
+    app.innerHTML = '';
+    var lvl = LEVELS[idx];
+    var wrap = el('div',{class:'screen game'});
+    wrap.appendChild(el('div',{class:'game-header'},
+      el('button',{class:'icon-btn', onclick:function(){ renderMap(name); }}, '\u2190'),
+      el('h2',{}, (idx+1) + '. ' + lvl.title)
+    ));
+    var body = el('div',{class:'game-body'});
+    wrap.appendChild(body);
+    var api = lvl.build(body);
+
+    var controls = el('div',{class:'controls-row'});
+    controls.appendChild(el('button',{class:'btn-primary btn-full', onclick:function(){
+      var correct = api.check();
+      showResult(name, idx, correct);
+    }}, 'Cek Jawaban'));
+    controls.appendChild(el('button',{class:'btn-secondary', onclick:function(){ renderGame(name, idx); }}, 'Ulangi'));
+    wrap.appendChild(controls);
+
+    app.appendChild(wrap);
+  }
+
+  function showResult(name, idx, correct){
+    var db = loadDB();
+    var p = ensurePlayer(db, name);
+    var overlay = el('div',{class:'overlay'});
+    var card = el('div',{class:'result-card'});
+    if(correct){
+      var prevStars = (p.levels[idx] && p.levels[idx].stars) || 0;
+      var stars = Math.max(prevStars, 3);
+      p.levels[idx] = { completed:true, stars: stars };
+      if(idx + 1 >= p.unlocked) p.unlocked = Math.min(LEVELS.length, idx + 2);
+      saveDB(db);
+
+      card.appendChild(el('div',{class:'result-emoji'}, '\uD83C\uDF89'));
+      card.appendChild(el('h2',{}, 'Level Selesai!'));
+      card.appendChild(el('p',{}, idx+1 < LEVELS.length ? 'Ayo lanjut ke level berikutnya.' : 'Kamu menyelesaikan semua level, hebat!'));
+      var row = el('div',{class:'controls-row'});
+      if(idx+1 < LEVELS.length){
+        row.appendChild(el('button',{class:'btn-primary', onclick:function(){ overlay.remove(); renderGame(name, idx+1); }},'Level Berikutnya'));
+      }
+      row.appendChild(el('button',{class:'btn-secondary', onclick:function(){ overlay.remove(); renderMap(name); }},'Peta Level'));
+      card.appendChild(row);
+    } else {
+      card.appendChild(el('div',{class:'result-emoji'},'\uD83E\uDD14'));
+      card.appendChild(el('h2',{},'Belum Tepat'));
+      card.appendChild(el('p',{},'Coba lagi, kamu pasti bisa!'));
+      var row2 = el('div',{class:'controls-row'});
+      row2.appendChild(el('button',{class:'btn-primary', onclick:function(){ overlay.remove(); renderGame(name, idx); }},'Coba Lagi'));
+      row2.appendChild(el('button',{class:'btn-secondary', onclick:function(){ overlay.remove(); renderMap(name); }},'Peta Level'));
+      card.appendChild(row2);
+    }
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+  }
+
+  /* ============ boot ============ */
+  var db0 = loadDB();
+  if(db0.last && db0.players[db0.last]) renderMap(db0.last);
+  else renderHome();
+
+})();
+</script>
+</body>
+</html>
