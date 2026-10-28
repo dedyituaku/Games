@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tebak Angka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f5fb; --surface:#ffffff; --text:#1b2238; --muted:#5d6682; --line:#d6dbea;
+  --ok:#1f9d55; --no:#d6455d; --accent:#1d6fd6;
+  --c1:#2b9bd8; --c2:#6aa81a; --c4:#8b5fd0; --c8:#e8821f; --c16:#d9485f;
+  --tint:16%;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c0f1d; --surface:#161b30; --text:#eef1fb; --muted:#a2abc8; --line:#2b3354;
+    --ok:#4fd187; --no:#ff7088; --accent:#5ab0ff;
+    --c1:#38bdf8; --c2:#9ad43a; --c4:#c39bff; --c8:#ffa04d; --c16:#ff7a8e;
+    --tint:22%;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c0f1d; --surface:#161b30; --text:#eef1fb; --muted:#a2abc8; --line:#2b3354;
+  --ok:#4fd187; --no:#ff7088; --accent:#5ab0ff;
+  --c1:#38bdf8; --c2:#9ad43a; --c4:#c39bff; --c8:#ffa04d; --c16:#ff7a8e;
+  --tint:22%;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:"Fredoka","Nunito","Segoe UI",system-ui,sans-serif;
+  min-height:100vh; -webkit-tap-highlight-color:transparent;
+}
+main{max-width:720px; margin:0 auto; padding:20px 16px 40px}
+h1{
+  font-size:clamp(28px,7vw,42px); line-height:1.1; margin:8px 0 6px;
+  text-align:center; font-weight:700; letter-spacing:.2px;
+}
+.sub{text-align:center; color:var(--muted); margin:0 0 18px; font-size:17px; line-height:1.4}
+.how{
+  background:var(--surface); border:1.5px solid var(--line); border-radius:16px;
+  padding:12px 16px; margin:0 auto 18px; max-width:520px; font-size:16px; line-height:1.5;
+}
+.how b{font-weight:600}
+
+.progress{display:flex; align-items:center; gap:10px; max-width:520px; margin:0 auto 18px}
+.bar{flex:1; height:10px; border-radius:99px; background:var(--line); overflow:hidden}
+.bar i{display:block; height:100%; width:0; background:var(--accent); border-radius:99px; transition:width .35s ease}
+.count{font-weight:600; font-size:15px; min-width:92px; text-align:right}
+
+.deck{display:flex; flex-wrap:wrap; justify-content:center; gap:14px}
+.card{
+  --c:var(--c1);
+  position:relative; width:calc(50% - 7px); max-width:230px;
+  border:2.5px solid var(--c); border-radius:18px; padding:10px 8px 12px;
+  background:color-mix(in srgb, var(--c) var(--tint), var(--surface));
+  color:var(--text); font:inherit; cursor:pointer; text-align:center;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+@media (min-width:560px){ .card{width:calc(33.333% - 10px)} }
+.card:hover{transform:translateY(-3px)}
+.card:focus-visible,.btn:focus-visible,.x:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.card[data-k="1"]{--c:var(--c1)} .card[data-k="2"]{--c:var(--c2)} .card[data-k="4"]{--c:var(--c4)}
+.card[data-k="8"]{--c:var(--c8)} .card[data-k="16"]{--c:var(--c16)}
+.badge{
+  position:absolute; top:-12px; left:-8px; width:34px; height:34px; border-radius:50%;
+  background:var(--c); color:#fff; font-weight:700; font-size:18px;
+  display:grid; place-items:center; border:2px solid var(--bg);
+}
+.nums{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:2px 0;
+  margin-top:4px; font-weight:600; font-size:clamp(14px,3.8vw,18px);
+  font-variant-numeric:tabular-nums; line-height:1.55;
+}
+.mark{
+  position:absolute; right:-8px; top:-12px; width:34px; height:34px; border-radius:50%;
+  display:none; place-items:center; font-weight:700; font-size:20px; color:#fff; border:2px solid var(--bg);
+}
+.card.yes .mark{display:grid; background:var(--ok)}
+.card.no .mark{display:grid; background:var(--no)}
+.card.yes{box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 55%,transparent)}
+.card.no{box-shadow:0 0 0 3px color-mix(in srgb,var(--no) 55%,transparent); opacity:.82}
+.hint{text-align:center; color:var(--muted); margin:18px 0 0; font-size:15px}
+
+/* zoom */
+.overlay{
+  position:fixed; inset:0; z-index:50; display:none;
+  background:rgba(6,8,18,.72); backdrop-filter:blur(3px);
+  align-items:center; justify-content:center;
+  padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));
+}
+.overlay.open{display:flex}
+.zoom{
+  --c:var(--c1);
+  width:min(100%,420px); border-radius:24px; padding:18px 16px 18px;
+  border:3px solid var(--c); background:color-mix(in srgb, var(--c) var(--tint), var(--surface));
+  position:relative; transform:scale(.55); opacity:0;
+  transition:transform .28s cubic-bezier(.2,.9,.3,1.2), opacity .2s ease;
+}
+.overlay.open .zoom{transform:scale(1); opacity:1}
+.zoom .badge{width:46px; height:46px; font-size:24px; top:-18px; left:-10px}
+.zoom .nums{font-size:clamp(24px,8vw,34px); gap:6px 0; margin-top:6px; line-height:1.4}
+.zoom .q{text-align:center; font-weight:600; font-size:19px; margin:16px 0 12px; line-height:1.3}
+.actions{display:flex; gap:10px}
+.btn{
+  flex:1; font:inherit; font-weight:600; font-size:19px; padding:14px 10px;
+  border-radius:16px; border:0; cursor:pointer; color:#fff; transition:transform .1s ease, filter .15s;
+}
+.btn:active{transform:scale(.96)}
+.btn.y{background:var(--ok)} .btn.n{background:var(--no)}
+:root:not([data-theme="light"]) .btn.y,:root:not([data-theme="light"]) .btn.n{color:#0c0f1d}
+@media (prefers-color-scheme: light){ .btn.y,.btn.n{color:#fff} }
+.x{
+  position:absolute; top:-14px; right:-8px; width:38px; height:38px; border-radius:50%;
+  border:2px solid var(--line); background:var(--surface); color:var(--text);
+  font-size:18px; cursor:pointer; line-height:1;
+}
+
+/* hasil */
+.result{
+  display:none; max-width:520px; margin:26px auto 0; text-align:center;
+  background:transparent; border:0; padding:0;
+}
+.result.show{display:block; animation:pop .45s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes pop{from{transform:scale(.85); opacity:0} to{transform:scale(1); opacity:1}}
+.result .lead{margin:0; color:var(--muted); font-size:17px}
+.result .big{font-size:clamp(76px,22vw,112px); font-weight:700; line-height:1; margin:6px 0 4px; color:var(--accent)}
+.result .sum{margin:0 0 4px; font-size:19px; font-weight:500; font-variant-numeric:tabular-nums}
+.result .why{margin:12px 0 0; color:var(--muted); font-size:15px; line-height:1.5}
+.result .bad{color:var(--no); font-weight:600; font-size:19px; margin:6px 0}
+.again{
+  margin-top:18px; font:inherit; font-weight:600; font-size:18px; padding:12px 26px;
+  border-radius:99px; border:2px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer;
+}
+.again:hover{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Tebak Angka</h1>
+  <p class="sub">dengan 5 kartu</p>
+
+  <div class="how">
+    <b>Cara main:</b> pikirkan satu angka (1–31) tanpa menyebutkannya. Ketuk tiap kartu, lalu tandai
+    <b>✓ Ada</b> jika angkamu ada di kartu itu, atau <b>✗ Tidak ada</b> jika tidak.
+  </div>
+
+  <div class="progress">
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="count" id="count">0 / 5 kartu</div>
+  </div>
+
+  <div class="deck" id="deck"></div>
+  <p class="hint" id="hint">Ketuk sebuah kartu untuk memperbesarnya.</p>
+
+  <section class="result" id="result" aria-live="polite"></section>
+</main>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Kartu diperbesar">
+  <div class="zoom" id="zoom"></div>
+</div>
+
+<script>
+(function(){
+  var KEYS = [1,2,4,8,16];
+  var state = {};            // {1:'yes'|'no'|undefined, ...}
+  var current = null;
+
+  var deck = document.getElementById('deck');
+  var overlay = document.getElementById('overlay');
+  var zoom = document.getElementById('zoom');
+  var result = document.getElementById('result');
+
+  function numbersFor(k){
+    var out = [];
+    for (var n = 1; n <= 31; n++){ if (n & k) out.push(n); }
+    return out;
+  }
+  function numsHtml(k){
+    return numbersFor(k).map(function(n){ return '<span>'+n+'</span>'; }).join('');
+  }
+
+  function buildDeck(){
+    deck.innerHTML = '';
+    KEYS.forEach(function(k){
+      var b = document.createElement('button');
+      b.className = 'card';
+      b.setAttribute('data-k', k);
+      b.setAttribute('aria-label', 'Kartu ' + k);
+      b.innerHTML = '<span class="mark"></span><div class="nums">'+numsHtml(k)+'</div>';
+      b.addEventListener('click', function(){ openCard(k); });
+      deck.appendChild(b);
+    });
+  }
+
+  function refresh(){
+    var done = 0;
+    KEYS.forEach(function(k){
+      var el = deck.querySelector('[data-k="'+k+'"]');
+      el.classList.remove('yes','no');
+      var m = el.querySelector('.mark');
+      if (state[k] === 'yes'){ el.classList.add('yes'); m.textContent = '✓'; done++; }
+      else if (state[k] === 'no'){ el.classList.add('no'); m.textContent = '✗'; done++; }
+      else { m.textContent = ''; }
+    });
+    document.getElementById('barFill').style.width = (done / 5 * 100) + '%';
+    document.getElementById('count').textContent = done + ' / 5 kartu';
+    var hint = document.getElementById('hint');
+    if (done === 5){
+      hint.textContent = 'Semua kartu sudah ditandai. Ketuk kartu mana pun untuk mengubah jawaban.';
+      showResult();
+    } else {
+      hint.textContent = done === 0 ? 'Ketuk sebuah kartu untuk memperbesarnya.'
+        : 'Lanjutkan, tinggal ' + (5 - done) + ' kartu lagi.';
+      result.classList.remove('show');
+      result.innerHTML = '';
+    }
+  }
+
+  function showResult(){
+    var picked = KEYS.filter(function(k){ return state[k] === 'yes'; });
+    var total = picked.reduce(function(a,b){ return a + b; }, 0);
+    var html = '';
+    if (total < 1 || total > 31){
+      html = '<p class="bad">Hmm, jawabanmu tidak cocok dengan angka mana pun.</p>' +
+             '<p class="why">Angka hanya bisa 1–31, dan minimal satu kartu harus ditandai ✓. ' +
+             'Ketuk kartu untuk memeriksa ulang jawabanmu, atau main lagi.</p>';
+    } else {
+      html = '';
+    }
+    html += '<button class="again" id="again">Main lagi</button>';
+    result.innerHTML = html;
+    result.classList.remove('show');
+    void result.offsetWidth;
+    result.classList.add('show');
+    document.getElementById('again').addEventListener('click', reset);
+    setTimeout(function(){ result.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 120);
+  }
+
+  function openCard(k){
+    current = k;
+    zoom.setAttribute('data-k', k);
+    zoom.style.setProperty('--c', 'var(--c' + k + ')');
+    zoom.innerHTML =
+      '<button class="x" id="closeBtn" aria-label="Tutup">✕</button>' +
+      '<div class="nums">'+numsHtml(k)+'</div>' +
+      '<div class="q">Apakah angkamu ada di kartu ini?</div>' +
+      '<div class="actions">' +
+        '<button class="btn y" id="yesBtn">✓ Ada</button>' +
+        '<button class="btn n" id="noBtn">✗ Tidak ada</button>' +
+      '</div>';
+    overlay.classList.add('open');
+    document.getElementById('closeBtn').addEventListener('click', closeCard);
+    document.getElementById('yesBtn').addEventListener('click', function(){ mark('yes'); });
+    document.getElementById('noBtn').addEventListener('click', function(){ mark('no'); });
+    document.getElementById('yesBtn').focus();
+  }
+
+  function closeCard(){
+    overlay.classList.remove('open');
+    current = null;
+  }
+
+  function mark(v){
+    if (current === null) return;
+    state[current] = v;
+    closeCard();
+    refresh();
+  }
+
+  function reset(){
+    state = {};
+    refresh();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) closeCard(); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && current !== null) closeCard();
+  });
+
+  buildDeck();
+  refresh();
+})();
+</script>
+</body>
+</html>
